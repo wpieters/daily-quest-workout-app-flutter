@@ -1,0 +1,183 @@
+# Solo Leveling Workout Tracker - Windsurf Rules
+# Flutter mobile app for workout tracking with anime-style progression
+
+project_type: "flutter_mobile_app"
+target_platforms: ["android", "ios"]
+
+# Development Guidelines
+development:
+  architecture: "clean_architecture"
+  state_management: "riverpod"  # or "provider" as alternative
+  local_storage: "shared_preferences"
+  navigation: "go_router"
+  
+# Code Style
+code_style:
+  dart_style: "effective_dart"
+  line_length: 80
+  use_trailing_commas: true
+  prefer_single_quotes: true
+  sort_imports: true
+
+# Project Structure
+directories:
+  lib:
+    - "main.dart"
+    - "app/"
+    - "core/"
+      - "constants/"
+      - "utils/"
+      - "extensions/"
+    - "features/"
+      - "workout/"
+        - "data/"
+        - "domain/"
+        - "presentation/"
+      - "progress/"
+        - "data/"
+        - "domain/" 
+        - "presentation/"
+      - "settings/"
+        - "data/"
+        - "domain/"
+        - "presentation/"
+    - "shared/"
+      - "widgets/"
+      - "models/"
+      - "services/"
+  assets:
+    - "images/"
+      - "animations/"  # GIF files for power-up sequences
+      - "icons/"
+    - "fonts/"
+  web:
+    - "index.html"
+    - "manifest.json"  # PWA configuration
+    - "favicon.png"
+  root:
+    - "amplify.yml"  # AWS Amplify build specification
+
+# Dependencies
+dependencies:
+  state_management: "flutter_riverpod: ^2.4.9"
+  local_storage: "shared_preferences: ^2.2.2"
+  navigation: "go_router: ^12.1.3"
+  animations: "lottie: ^2.7.0"  # Alternative to GIFs
+  gif_support: "flutter_gif: ^0.3.0"
+  icons: "lucide_icons: ^0.1.0"
+  
+dev_dependencies: 
+  - "flutter_lints: ^3.0.0"
+  - "build_runner: ^2.4.7"
+  - "json_annotation: ^4.8.1"
+  - "json_serializable: ^6.7.1"
+
+# Key Features Implementation Notes
+features:
+  workout_tracking:
+    - "Four main exercise counters (pushups, situps, squats, running)"
+    - "Tap to increment with haptic feedback"
+    - "Stage progression visualization (10 stages of 10 reps each)"
+    - "Running toggle for daily completion calculation"
+    
+  progress_system:
+    - "Daily streak tracking"
+    - "Historical workout data"
+    - "Achievement milestones"
+    - "Progress visualization charts"
+    
+  animations:
+    - "Power-up GIF sequences based on streak length"
+    - "Micro-animations for button presses and counters"
+    - "Stage completion celebration effects"
+    - "Smooth transitions between states"
+
+# UI/UX Guidelines
+ui_design:
+  theme: "anime_inspired"
+  primary_colors: ["blue", "yellow", "red"]  # Power level progression
+  typography: "bold_numbers_for_counters"
+  button_style: "large_touch_targets"
+  accessibility: "high_contrast_support"
+
+# Development Priorities
+priorities:
+  1: "Core workout tracking functionality"
+  2: "Data persistence and state management" 
+  3: "Basic UI with four exercise buttons"
+  4: "Stage progression visualization"
+  5: "Running toggle implementation"
+  6: "Streak tracking system"
+  7: "Basic completion animation"
+  8: "Advanced power-up sequences"
+  9: "Progress history screen"
+  10: "Settings and customization"
+
+# Performance Considerations
+performance:
+  - "Efficient state updates to prevent UI lag"
+  - "Optimized animation loading and caching"
+  - "Minimal battery drain during background state"
+  - "Smooth 60fps animations"
+
+# Testing Strategy
+testing:
+  unit_tests: "Core business logic and data models"
+  widget_tests: "UI components and user interactions"
+  integration_tests: "Full workout flow scenarios"
+  
+# Build Configuration
+build:
+  android:
+    min_sdk: 21
+    target_sdk: 34
+    compile_sdk: 34
+  ios:
+    min_version: "12.0"
+  web:
+    renderer: "canvaskit"  # Better performance for animations
+    
+# AWS Amplify Deployment
+deployment:
+  platform: "aws_amplify"
+  repository: "github"
+  auto_deploy: true
+  environments:
+    - "main"  # Production branch
+    - "develop"  # Staging branch
+    
+amplify_config:
+  build_spec: "amplify.yml"
+  framework: "flutter"
+  node_version: "18"
+  flutter_channel: "stable"
+  
+web_optimization:
+  - "Enable PWA features for mobile web"
+  - "Optimize for mobile touch interactions"
+  - "Configure service worker for offline capability"
+  - "Minimize bundle size for faster loading"
+    
+# Asset Management
+assets:
+  power_up_gifs:
+    - "basic_power_up.gif"
+    - "super_saiyan_1.gif" 
+    - "super_saiyan_2.gif"
+    - "ultra_instinct.gif"
+  sound_effects: "optional_for_future"
+  
+# Data Models
+key_models:
+  - "WorkoutDay: Daily exercise progress"
+  - "UserProgress: Streaks and achievements"
+  - "ExerciseType: Enum for workout types"
+  - "PowerLevel: Animation sequence data"
+
+# Special Requirements
+requirements:
+  - "Daily reset at midnight"
+  - "Offline-first functionality"
+  - "Auto-save on every interaction"
+  - "Smooth animation performance"
+  - "Large, accessible buttons for workout flow"
