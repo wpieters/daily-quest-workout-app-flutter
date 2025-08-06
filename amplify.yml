@@ -1,20 +1,29 @@
 version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - curl https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.3-stable.tar.xz -o flutter.tar.xz
-        - tar xf flutter.tar.xz
-        - export PATH="$PATH:`pwd`/flutter/bin"
-        - flutter precache
-        - flutter --version
-    build:
-      commands:
-        - flutter build web --release
-  artifacts:
-    baseDirectory: build/web
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - .pub-cache/**/*
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            # Install xz utility for extracting Flutter SDK
+            - yum install -y xz
+            # Download and extract Flutter SDK
+            - curl https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.3-stable.tar.xz -o flutter.tar.xz
+            - tar xf flutter.tar.xz
+            # Add Flutter to PATH
+            - export PATH="$PATH:`pwd`/flutter/bin"
+            # Verify Flutter installation
+            - flutter doctor
+            - flutter pub get
+        build:
+          commands:
+            - export PATH="$PATH:`pwd`/flutter/bin"
+            - flutter build web --release
+      artifacts:
+        baseDirectory: build/web
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - flutter/**/*
+          - ~/.pub-cache/**/*
+          - .dart_tool/**/*
