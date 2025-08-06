@@ -1,0 +1,45 @@
+{
+    "name": "DailyQuest - Solo Leveling Workout Tracker",
+    "short_name": "DailyQuest",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#121212",
+    "theme_color": "#1976D2",
+    "description": "Track your One Punch Man workout routine with anime-inspired progression and power-up animations.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "categories": ["fitness", "health", "lifestyle"],
+    "lang": "en",
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "screenshots/workout-screen.png",
+            "sizes": "1170x2532",
+            "type": "image/png",
+            "form_factor": "narrow"
+        }
+    ]
+}
