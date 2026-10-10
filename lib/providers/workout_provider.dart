@@ -87,6 +87,7 @@ class WorkoutNotifier extends StateNotifier<WorkoutState> {
         newDay = state.currentDay.copyWith(squats: state.currentDay.squats + 1);
         break;
       case ExerciseType.running:
+        if (!state.currentDay.runningEnabled) return;
         if (state.currentDay.running >= 100) return;
         newDay = state.currentDay.copyWith(running: state.currentDay.running + 1);
         break;
