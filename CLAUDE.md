@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 DailyQuest is a Flutter workout tracker app inspired by the One Punch Man/Solo Leveling workout routine with anime-style progression rewards. The app tracks 100 push-ups, 100 sit-ups, 100 squats, and 10km run (broken into 100m increments) with stage-based progression and streak-based power-up animations.
 
+## Documentation
+
+Read these before starting work:
+- `docs/adr/`: decisions already made. Don't relitigate an *Accepted* ADR. *Proposed* ADRs are implemented but await Wynand's confirmation. Record any new decision as the next numbered ADR, following ADR 0001.
+- `docs/handoffs/`: numbered task briefs. Work from any handoff with `status: open` or `in-progress`. When the work ships, add an Outcome section and set `status: done`.
+- `docs/spec.md`: the living product spec. Keep it in sync with behaviour changes.
+
 ## Development Commands
 
 This is a Flutter project. Common commands include:
