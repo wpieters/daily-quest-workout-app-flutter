@@ -28,9 +28,7 @@ class DailyQuestApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'DailyQuest',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      theme: AppTheme.theme,
       home: const AppInitializer(child: WorkoutScreen()),
       debugShowCheckedModeBanner: false,
     );

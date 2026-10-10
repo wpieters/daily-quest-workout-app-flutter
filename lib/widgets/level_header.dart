@@ -33,18 +33,7 @@ class LevelHeader extends StatelessWidget {
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.systemPanel,
-            borderRadius: BorderRadius.circular(20),
-            border:
-                Border.all(color: AppTheme.systemBlue.withValues(alpha: 0.6)),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.systemBlue.withValues(alpha: 0.25),
-                blurRadius: 12,
-              ),
-            ],
-          ),
+          decoration: AppTheme.panel(borderAlpha: 0.5),
           child: ExcludeSemantics(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
