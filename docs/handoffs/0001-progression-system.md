@@ -1,9 +1,9 @@
 ---
 status: done
 date: 2026-10-10
-branch: feat/progression-system → vibe/claude-code
+branch: feat/progression-system → main
 pr: https://github.com/wpieters/daily-quest-workout-app-flutter/pull/1
-adrs: [0003, 0004, 0005, 0006, 0007, 0008, 0009, 0010]
+adrs: [0003, 0004, 0005, 0006, 0007, 0008, 0009, 0010, 0011]
 ---
 
 # HANDOFF: DailyQuest – Progression System Implementation
@@ -168,5 +168,5 @@ Shipped in PR #1 on `feat/progression-system`. All seven implementation steps we
 - An upgrade to Flutter 3.47.7 and the latest dependencies. See [ADR 0010](../adr/0010-toolchain-pin.md).
 
 **Differences from the brief**
-- `amplify.yml` had already been deleted before work started, so the Amplify build settings now live in the console. It must be switched to Flutter 3.47.7 before merging.
+- `amplify.yml` had been deleted to stop the demo branches deploying. It was restored, pinned to Flutter 3.47.7, and PR #1 was retargeted from `vibe/claude-code` to `main`, which is now the only deployed branch. See [ADR 0011](../adr/0011-deploy-main-only.md).
 - The code is organised by layer (`models/`, `providers/`, `screens/`) rather than by `features/` as the brief described. The new engine lives in `lib/progression/`, and nothing was restructured.
