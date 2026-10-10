@@ -17,13 +17,70 @@ A Flutter mobile app that tracks daily workout progress for the One Punch Man/So
 - **Main Screen**: Four large, prominent buttons arranged in a grid
 - **Counter Display**: Current count / target count for each exercise
 - **Progress Bars**: Visual progress indication for each exercise
-- **Running Toggle**: Checkbox to enable/disable running from daily completion
+- **Running Toggle**: Checkbox to enable/disable running from daily completion. When unchecked, the running button is disabled (greyed out and non-interactive)
+- **Level Header**: Level, title and XP bar, with floating "+XP" feedback on each award; tap to open the character sheet
 - **Stage Completion**: Visual indicator showing completed "stages" (every 10 reps/taps)
 
 ### Progression System
 - **Stages**: Each exercise divided into 10 stages of 10 reps each
 - **Stage Visualization**: Progress rings or bars showing 10 stages per exercise
 - **Daily Completion**: All enabled exercises must reach 100 to complete the day
+
+### RPG Progression (XP, Levels, Titles, Stats)
+
+All tunable numbers live in `lib/progression/progression_config.dart`. The rules
+engine (`lib/progression/`) is pure Dart with no Flutter imports.
+
+#### XP
+- 100 XP when an individual exercise reaches its target (not per rep)
+- +100 bonus XP when all four are completed (requires running enabled)
+- Full day = 500 XP; day without running = 300 XP
+- XP awards for a day never repeat or get revoked (resetting today's counters or toggling running does not change XP already earned)
+- Missed day = -150 XP
+
+#### Missed Days and Level Protection
+- A **missed day** is a past day on which no exercise reached its target. Partial days are not penalised *(proposed default)*
+- There is no backend: on app open (and at midnight while open) every day since `lastActiveDate` is settled retroactively, exactly once *(proposed default)*
+- While consecutive misses are fewer than 7, XP is clamped at the current level's floor; penalties are not banked. From the 7th consecutive miss on, deductions can cross level boundaries *(proposed default)*
+
+#### Leveling Curve
+- XP from level L to L+1 = `round(100 + 18·L + 2.5·L^1.35)`, levels 1–100
+- Total to level 100 ≈ 152k: ~10 months at 500/day, ~a year at ~440/day, ~17 months at 300/day
+
+#### Titles (derived from level, never stored; drop with level)
+| Level | Title |
+|---|---|
+| 1 | World's Weakest |
+| 10 | Fledgling Warrior |
+| 20 | E-Rank Hunter |
+| 30 | D-Rank Hunter |
+| 40 | C-Rank Hunter |
+| 50 | B-Rank Hunter |
+| 60 | A-Rank Hunter |
+| 70 | National Level Hunter |
+| 80 | Shadow Sovereign Candidate |
+| 90 | S-Rank Hunter |
+| 100 | World's Strongest Hunter |
+
+#### Stats
+- HP, MP, Strength, Vitality, Agility, Intelligence, Perception, Fatigue
+- Strength ← push-ups, Vitality ← sit-ups, Agility ← squats. Growth is level-based, not rep-based
+- Intelligence and Perception only grow through skills and items (future), never per level
+- Start at 10 each *(proposed default)*; hard cap 255
+- On level-up: +2 to STR/VIT/AGI if that exercise was completed on ≥50% of the days spent in the previous level (the level-up day counts with what's done so far) *(proposed default)*. ~210 max by level 100
+- On level-down: -5 STR/VIT/AGI per level lost, floor 10 *(proposed default)*
+- HP = Vitality × 10, MP = Intelligence × 5 (derived, not stored) *(proposed default)*
+- 3 skill points per level, granted only the first time a level is reached. Stored for the future skill store; not removed on level-down
+
+#### Fatigue
+- Start at 7, recover 1 per day up to max
+- Max +1 per 10 levels, only if running was completed on ≥50% of days in that span (max 17). Each milestone is awarded at most once *(proposed default)*
+- Spent in multiplayer battles (future); currently only current and max are tracked
+
+#### Ceremonies
+- Level-up: full-screen Solo Leveling "system window" with the level change, stat gains, skill points and fatigue gains; tap to dismiss. Multiple level-ups queue
+- Title unlock: shown in the same window as "TITLE ACQUIRED"
+- Animations are placeholders until final assets exist
 
 ### Reward System
 - **Completion Animation**: Goku power-up style GIF sequence when daily goal achieved
@@ -47,18 +104,37 @@ class WorkoutDay {
   int running; // in 100m units
   bool runningEnabled;
   bool completed;
+  int xpEarned;       // XP already awarded for this day
+  bool bonusAwarded;
 }
 
 class UserProgress {
   int currentStreak;
   int longestStreak;
   int totalWorkouts;
-  List<WorkoutDay> history;
+  List<WorkoutDay> history;       // every day with activity
+  ProgressionState progression;
 }
+
+class ProgressionState {
+  int totalXp, skillPoints, fatigueCurrent, fatigueMax, consecutiveMissedDays;
+  DateTime? lastActiveDate;       // last day whose missed-day processing is settled
+  CharacterStats stats;           // STR, VIT, AGI, INT, PER
+  DayTally levelTally;            // per-exercise completion days at current level
+  DayTally fatigueTally;          // running days since last fatigue milestone
+  int highestLevel, fatigueMilestoneLevel;
+}
+// Derived, never persisted: level, XP into level, title, HP, MP
 ```
 
+Stored data carries `schemaVersion` (currently 2). Data from before the
+progression system (no `schemaVersion`) keeps its history and streaks and starts
+progression at starting values with no retroactive penalties; today's progress,
+if any, is awarded XP on first load.
+
 ### Core Screens
-1. **Main Workout Screen**: Primary interface with exercise buttons
+1. **Main Workout Screen**: Primary interface with exercise buttons and level header
+1. **Character Sheet**: Level, title, XP, HP/MP, fatigue, stats and unspent skill points
 2. **Progress Screen**: Historical data and achievements
 3. **Settings Screen**: Preferences and workout customization
 
@@ -69,8 +145,9 @@ class UserProgress {
 2. Tap exercise buttons to increment counters
 3. Visual feedback shows stage completion (every 10 reps)
 4. Running can be toggled on/off for daily completion
-5. When all enabled exercises reach 100, trigger celebration animation
-6. Progress saves automatically
+5. Each exercise reaching 100 awards XP; level-ups show the system window
+6. When all enabled exercises reach 100, trigger celebration animation
+7. Progress saves automatically
 
 ### Visual Design
 - **Color Scheme**: Anime-inspired with power level colors (blue → yellow → red)
