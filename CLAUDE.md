@@ -84,7 +84,7 @@ Power-up sequences based on streak length:
 The app is deployed via AWS Amplify with automatic CI/CD. The web version is available at: https://dailyquest.duhblinn.xyz
 
 ### Build Configuration
-Uses `amplify.yml` for automated Flutter web builds with caching of `.pub-cache` and `.dart_tool` directories.
+Uses `amplify.yml` for automated Flutter web builds with caching of `.pub-cache` and `.dart_tool` directories. Only `main` deploys ([ADR 0011](docs/adr/0011-deploy-main-only.md)). Keep the Flutter version in `amplify.yml` in step with local development, and download with `wget`, not `curl`.
 
 ## Development Phases
 

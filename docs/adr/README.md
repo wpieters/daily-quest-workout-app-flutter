@@ -14,3 +14,4 @@ These follow the format and conventions in [ADR 0001](0001-record-decisions-and-
 | [0008](0008-level-up-ceremony.md) | Level-up and title ceremony: system popup | Accepted |
 | [0009](0009-dark-system-window-design.md) | Dark-only Solo Leveling system-window design | Accepted |
 | [0010](0010-toolchain-pin.md) | Pin the Flutter toolchain, and match it in Amplify | Accepted |
+| [0011](0011-deploy-main-only.md) | Deploy only `main` through Amplify | Accepted |

@@ -214,7 +214,7 @@ Based on consecutive day streak:
 
 ### AWS Amplify Configuration
 - **Platform**: AWS Amplify for automated CI/CD
-- **Repository**: GitHub integration for automatic deployments
+- **Repository**: GitHub integration for automatic deployments from `main` only
 - **Build Settings**: Flutter web build configuration
 - **Environment**: Production deployment with custom domain support
 
@@ -228,10 +228,15 @@ applications:
       phases:
         preBuild:
           commands:
+            - yum install -y xz
+            - wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.7-stable.tar.xz -O flutter.tar.xz
+            - tar xf flutter.tar.xz
+            - export PATH="$PATH:`pwd`/flutter/bin"
             - flutter doctor
             - flutter pub get
         build:
           commands:
+            - export PATH="$PATH:`pwd`/flutter/bin"
             - flutter build web --release
       artifacts:
         baseDirectory: build/web
@@ -239,9 +244,12 @@ applications:
           - '**/*'
       cache:
         paths:
+          - flutter/**/*
           - ~/.pub-cache/**/*
           - .dart_tool/**/*
 ```
+
+Only `main` deploys; see [ADR 0011](adr/0011-deploy-main-only.md). The repo's `amplify.yml` is the source of truth.
 
 #### pubspec.yaml (Web Platform Configuration)
 ```yaml
