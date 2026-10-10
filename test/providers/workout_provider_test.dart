@@ -183,9 +183,8 @@ void main() {
 
     void seed(ProgressionState p, Map<String, dynamic> day) {
       SharedPreferences.setMockInitialValues({
-        'user_progress': jsonEncode(UserProgress.initial()
-            .copyWith(progression: p)
-            .toJson()),
+        'user_progress': jsonEncode(
+            UserProgress.initial().copyWith(progression: p).toJson()),
         'today_workout': jsonEncode(day),
       });
     }

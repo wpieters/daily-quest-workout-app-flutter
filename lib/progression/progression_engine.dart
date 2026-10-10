@@ -78,12 +78,12 @@ class ProgressionEngine {
       final gain = config.statGainPerLevel;
       final stats = s.stats;
 
-      final str = _capped(stats.strength,
-          tally.meets(tally.pushups, ratio) ? gain : 0);
-      final vit = _capped(stats.vitality,
-          tally.meets(tally.situps, ratio) ? gain : 0);
-      final agi = _capped(stats.agility,
-          tally.meets(tally.squats, ratio) ? gain : 0);
+      final str =
+          _capped(stats.strength, tally.meets(tally.pushups, ratio) ? gain : 0);
+      final vit =
+          _capped(stats.vitality, tally.meets(tally.situps, ratio) ? gain : 0);
+      final agi =
+          _capped(stats.agility, tally.meets(tally.squats, ratio) ? gain : 0);
 
       final skillPoints =
           next > s.highestLevel ? config.skillPointsPerLevel : 0;

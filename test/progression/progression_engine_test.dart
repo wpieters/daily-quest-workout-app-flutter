@@ -5,8 +5,8 @@ import 'package:daily_quest/progression/progression_config.dart';
 import 'package:daily_quest/progression/progression_engine.dart';
 import 'package:daily_quest/progression/progression_state.dart';
 
-const fullDay = DaySummary(
-    pushups: true, situps: true, squats: true, running: true);
+const fullDay =
+    DaySummary(pushups: true, situps: true, squats: true, running: true);
 const noRunDay = DaySummary(
     pushups: true, situps: true, squats: true, runningEnabled: false);
 
@@ -63,8 +63,8 @@ void main() {
     });
 
     test('curve constants are configurable', () {
-      final flat = Leveling(const ProgressionConfig(
-          curveLinear: 0, curvePower: 0, maxLevel: 10));
+      final flat = Leveling(
+          const ProgressionConfig(curveLinear: 0, curvePower: 0, maxLevel: 10));
       expect(flat.xpToNextLevel(5), 100);
       expect(flat.levelFloor(10), 900);
     });
@@ -101,8 +101,8 @@ void main() {
     });
 
     test('title drops with level', () {
-      final s = ProgressionState.initial()
-          .copyWith(totalXp: leveling.levelFloor(20));
+      final s =
+          ProgressionState.initial().copyWith(totalXp: leveling.levelFloor(20));
       expect(engine.titleOf(s), 'E-Rank Hunter');
       expect(engine.titleOf(s.copyWith(totalXp: leveling.levelFloor(20) - 1)),
           'Fledgling Warrior');
@@ -144,7 +144,10 @@ void main() {
 
     test('fromCounts ignores running when disabled', () {
       final day = DaySummary.fromCounts(
-          pushups: 100, situps: 100, squats: 100, running: 100,
+          pushups: 100,
+          situps: 100,
+          squats: 100,
+          running: 100,
           runningEnabled: false);
       expect(day.running, isFalse);
       expect(engine.dayXp(day), 300);
@@ -160,8 +163,7 @@ void main() {
       var s = engine.awardXp(ProgressionState.initial(), 500, fullDay).state;
       expect(s.skillPoints, 9);
       // Drop a level, then climb back: no skill points the second time.
-      s = s.copyWith(
-          totalXp: leveling.levelFloor(3), consecutiveMissedDays: 0);
+      s = s.copyWith(totalXp: leveling.levelFloor(3), consecutiveMissedDays: 0);
       s = engine.awardXp(s, leveling.xpToNextLevel(3), fullDay).state;
       expect(engine.levelOf(s), 4);
       expect(s.skillPoints, 9);
@@ -236,8 +238,8 @@ void main() {
 
     test('+2 to each stat whose exercise was done on >=50% of level days', () {
       final s = engine
-          .awardXp(ProgressionState.initial(), 121, const DaySummary(
-              pushups: true, situps: true))
+          .awardXp(ProgressionState.initial(), 121,
+              const DaySummary(pushups: true, situps: true))
           .state;
       expect(s.stats.strength, 12);
       expect(s.stats.vitality, 12);
@@ -368,12 +370,13 @@ void main() {
   group('catchUp', () {
     final monday = DateTime(2026, 10, 5);
 
-    ProgressionState activeOn(DateTime d, int level) => ProgressionState.initial()
-        .copyWith(totalXp: leveling.levelFloor(level), lastActiveDate: d);
+    ProgressionState activeOn(DateTime d, int level) =>
+        ProgressionState.initial()
+            .copyWith(totalXp: leveling.levelFloor(level), lastActiveDate: d);
 
     test('first run just records today', () {
-      final result =
-          engine.catchUp(ProgressionState.initial(), monday.add(const Duration(hours: 9)));
+      final result = engine.catchUp(
+          ProgressionState.initial(), monday.add(const Duration(hours: 9)));
       expect(result.state.lastActiveDate, monday);
       expect(result.missedDaysProcessed, 0);
     });
@@ -393,14 +396,15 @@ void main() {
     });
 
     test('skipped days after the last active day count as misses', () {
-      final s = activeOn(monday, 10)
-          .copyWith(totalXp: leveling.levelFloor(10) + 300);
+      final s =
+          activeOn(monday, 10).copyWith(totalXp: leveling.levelFloor(10) + 300);
       // Active Monday (did pushups), opens again Friday: Tue-Thu missed.
       final result = engine.catchUp(s, DateTime(2026, 10, 9),
           lastActiveDay: const DaySummary(pushups: true));
       expect(result.missedDaysProcessed, 3);
       expect(result.state.consecutiveMissedDays, 3);
-      expect(result.state.totalXp, leveling.levelFloor(10)); // 300 - 450, clamped
+      expect(
+          result.state.totalXp, leveling.levelFloor(10)); // 300 - 450, clamped
       expect(result.state.lastActiveDate, DateTime(2026, 10, 9));
     });
 
@@ -417,11 +421,12 @@ void main() {
     test('penalties are applied exactly once', () {
       final friday = DateTime(2026, 10, 9, 8);
       final first = engine.catchUp(activeOn(monday, 10), friday);
-      final again = engine.catchUp(first.state, friday.add(const Duration(hours: 6)));
+      final again =
+          engine.catchUp(first.state, friday.add(const Duration(hours: 6)));
       expect(again.missedDaysProcessed, 0);
       expect(again.state.totalXp, first.state.totalXp);
-      expect(again.state.consecutiveMissedDays,
-          first.state.consecutiveMissedDays);
+      expect(
+          again.state.consecutiveMissedDays, first.state.consecutiveMissedDays);
     });
 
     test('handles month and DST boundaries by calendar day', () {

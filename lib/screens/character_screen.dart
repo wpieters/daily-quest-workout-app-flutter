@@ -39,8 +39,10 @@ class CharacterScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           _Panel(
             children: [
-              _bar('HP', p.stats.hp(config), p.stats.hp(config), Colors.redAccent),
-              _bar('MP', p.stats.mp(config), p.stats.mp(config), AppTheme.systemBlue),
+              _bar('HP', p.stats.hp(config), p.stats.hp(config),
+                  Colors.redAccent),
+              _bar('MP', p.stats.mp(config), p.stats.mp(config),
+                  AppTheme.systemBlue),
               _bar('FATIGUE', p.fatigueCurrent, p.fatigueMax, Colors.amber),
             ],
           ),

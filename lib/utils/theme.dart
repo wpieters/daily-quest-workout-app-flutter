@@ -28,7 +28,7 @@ class AppTheme {
       ),
       cardTheme: CardTheme(
         elevation: 8,
-        shadowColor: primaryBlue.withOpacity(0.3),
+        shadowColor: primaryBlue.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -36,7 +36,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 8,
-          shadowColor: primaryBlue.withOpacity(0.3),
+          shadowColor: primaryBlue.withValues(alpha: 0.3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -51,7 +51,6 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryBlue,
         brightness: Brightness.dark,
-        background: darkBackground,
         surface: darkSurface,
       ),
       scaffoldBackgroundColor: darkBackground,
@@ -63,7 +62,7 @@ class AppTheme {
       ),
       cardTheme: CardTheme(
         elevation: 8,
-        shadowColor: primaryBlue.withOpacity(0.3),
+        shadowColor: primaryBlue.withValues(alpha: 0.3),
         color: darkCard,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -72,7 +71,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 8,
-          shadowColor: primaryBlue.withOpacity(0.3),
+          shadowColor: primaryBlue.withValues(alpha: 0.3),
           backgroundColor: darkCard,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -97,9 +96,9 @@ class AppTheme {
     final color = getPowerLevelColor(level);
     return LinearGradient(
       colors: [
-        color.withOpacity(0.8),
+        color.withValues(alpha: 0.8),
         color,
-        color.withOpacity(0.8),
+        color.withValues(alpha: 0.8),
       ],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,

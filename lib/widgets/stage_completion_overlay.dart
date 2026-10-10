@@ -95,7 +95,7 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
           return Opacity(
             opacity: _fadeAnimation.value,
             child: Container(
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black.withValues(alpha: 0.7),
               child: Center(
                 child: Transform.scale(
                   scale: _scaleAnimation.value,
@@ -104,8 +104,8 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
                     decoration: BoxDecoration(
                       gradient: RadialGradient(
                         colors: [
-                          exerciseColor.withOpacity(0.9),
-                          exerciseColor.withOpacity(0.7),
+                          exerciseColor.withValues(alpha: 0.9),
+                          exerciseColor.withValues(alpha: 0.7),
                           Colors.transparent,
                         ],
                         stops: const [0.0, 0.7, 1.0],
@@ -113,7 +113,7 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: exerciseColor.withOpacity(0.5),
+                          color: exerciseColor.withValues(alpha: 0.5),
                           blurRadius: 30,
                           spreadRadius: 10,
                         ),
@@ -131,7 +131,7 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 10,
                                 offset: const Offset(0, 5),
                               ),
@@ -176,7 +176,7 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
                         Text(
                           widget.exercise.displayName,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
