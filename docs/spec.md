@@ -221,35 +221,12 @@ Based on consecutive day streak:
 ### Required Configuration Files
 
 #### amplify.yml (Build Specification)
-```yaml
-version: 1
-applications:
-  - frontend:
-      phases:
-        preBuild:
-          commands:
-            - command -v xz || sudo yum install -y xz
-            - wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.7-stable.tar.xz -O flutter.tar.xz
-            - tar xf flutter.tar.xz
-            - export PATH="$PATH:`pwd`/flutter/bin"
-            - flutter doctor
-            - flutter pub get
-        build:
-          commands:
-            - export PATH="$PATH:`pwd`/flutter/bin"
-            - flutter build web --release
-      artifacts:
-        baseDirectory: build/web
-        files:
-          - '**/*'
-      cache:
-        paths:
-          - flutter/**/*
-          - ~/.pub-cache/**/*
-          - .dart_tool/**/*
-```
+The repo's `amplify.yml` is the source of truth. It:
+- downloads the pinned Flutter SDK with `wget`, installing `xz` with `sudo` when needed, since the build runs as non-root;
+- reuses a cached SDK only when its `.amplify-version` marker matches `FLUTTER_VERSION`, and otherwise replaces it;
+- runs `flutter build web --release` and publishes `build/web`.
 
-Only `main` deploys; see [ADR 0011](adr/0011-deploy-main-only.md). The repo's `amplify.yml` is the source of truth.
+Only `main` deploys; see [ADR 0011](adr/0011-deploy-main-only.md).
 
 #### pubspec.yaml (Web Platform Configuration)
 ```yaml

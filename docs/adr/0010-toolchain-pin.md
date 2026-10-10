@@ -11,4 +11,4 @@ Earlier, an Amplify build failed because CI used a different Flutter version fro
 
 ## Consequences
 - A build that uses an older Flutter fails immediately with a clear version error, rather than with confusing compile errors.
-- When the local Flutter version changes, update the SDK URL in `amplify.yml` in the same commit. Downloads in the build must use `wget`, because `curl` produced truncated files.
+- When the local Flutter version changes, update `FLUTTER_VERSION` in `amplify.yml` in the same commit. The build cache then replaces the old SDK automatically. Downloads in the build must use `wget`, because `curl` produced truncated files.

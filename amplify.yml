@@ -4,11 +4,20 @@ applications:
       phases:
         preBuild:
           commands:
-            # Install xz utility for extracting Flutter SDK (build runs as non-root)
-            - command -v xz || sudo yum install -y xz
-            # Download and extract Flutter SDK (wget: curl produced truncated files)
-            - wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.7-stable.tar.xz -O flutter.tar.xz
-            - tar xf flutter.tar.xz
+            # Flutter SDK version; bump alongside local development (ADR 0010)
+            - export FLUTTER_VERSION=3.47.7
+            # Reuse the cached SDK only if it is this version; otherwise replace it
+            # (extracting over an older cached SDK fails). The marker is written
+            # only after a complete extract.
+            - |
+              if [ "$(cat flutter/.amplify-version 2>/dev/null)" != "$FLUTTER_VERSION" ]; then
+                rm -rf flutter flutter.tar.xz &&
+                { command -v xz || sudo yum install -y xz; } &&
+                wget -q "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" -O flutter.tar.xz &&
+                tar xf flutter.tar.xz &&
+                rm flutter.tar.xz &&
+                echo "$FLUTTER_VERSION" > flutter/.amplify-version
+              fi
             # Add Flutter to PATH
             - export PATH="$PATH:`pwd`/flutter/bin"
             # Verify Flutter installation
