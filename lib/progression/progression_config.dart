@@ -1,7 +1,7 @@
 /// Every tunable number in the progression system lives here.
 ///
-/// Values marked "proposed" are defaults from the progression handoff that
-/// have not been confirmed yet; keep them configurable.
+/// Values marked "proposed" are implemented but not yet confirmed; see
+/// docs/adr/0004 and docs/adr/0005. Keep them configurable.
 class ProgressionConfig {
   // Leveling curve: XP from level L to L+1 = base + linear*L + power*L^exponent
   final double curveBase;
