@@ -14,8 +14,9 @@ A Flutter mobile app that tracks daily workout progress for the One Punch Man/So
   - Running (100m per tap, target: 10km = 100 taps)
 
 ### User Interface
-- **Main Screen**: Four large, prominent buttons arranged in a grid
-- **Counter Display**: Current count / target count for each exercise
+- **Main Screen**: A "QUEST INFO" system window (goals, penalty caution, streak) above four exercise panels in a grid
+- **Counter Display**: Bracketed monospace counts, e.g. `[42 / 100]`, `[3.2KM / 10KM]`
+- **Undo**: Each exercise panel has a minus button to undo a mis-tap. XP already earned is kept; reaching the target again does not re-award it or replay the celebration
 - **Progress Bars**: Visual progress indication for each exercise
 - **Running Toggle**: Checkbox to enable/disable running from daily completion. When unchecked, the running button is disabled (greyed out and non-interactive)
 - **Level Header**: Level, title and XP bar, with floating "+XP" feedback on each award; tap to open the character sheet
@@ -150,8 +151,10 @@ if any, is awarded XP on first load.
 7. Progress saves automatically
 
 ### Visual Design
-- **Color Scheme**: Anime-inspired with power level colors (blue → yellow → red)
-- **Typography**: Bold, easy-to-read numbers for counters
+- **Color Scheme**: Dark-only Solo Leveling "system window" look: navy background `#0F131A`, panels `#151C28`, cyan accent `#00AAFF` with 30% borders; green/orange/red for complete/warning/danger. Power level colors (blue → yellow → red) for streak tiers
+- **Labels**: Uppercase with wide letter spacing
+- **Glow**: Pulsing cyan glow on system windows (level-up, completed quest panel); expanding power-up ring on each tap. Static when reduced motion is requested
+- **Typography**: Bold, easy-to-read monospace numbers for counters
 - **Animations**: Smooth counter increments, stage completion effects
 - **Accessibility**: Large touch targets, high contrast, screen reader support
 

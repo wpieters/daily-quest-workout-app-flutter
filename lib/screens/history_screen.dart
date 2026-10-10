@@ -214,7 +214,7 @@ class HistoryScreen extends ConsumerWidget {
             child: CircularProgressIndicator(
               value: totalProgress,
               strokeWidth: 3,
-              backgroundColor: Colors.grey[300],
+              backgroundColor: AppTheme.muted,
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppTheme.primaryBlue,
               ),
@@ -248,7 +248,7 @@ class HistoryScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: enabled ? null : Border.all(color: Colors.grey[300]!),
+        border: enabled ? null : Border.all(color: AppTheme.muted),
       ),
       child: Column(
         children: [
@@ -276,7 +276,7 @@ class HistoryScreen extends ConsumerWidget {
             width: double.infinity,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: AppTheme.muted,
               borderRadius: BorderRadius.circular(2),
             ),
             child: FractionallySizedBox(

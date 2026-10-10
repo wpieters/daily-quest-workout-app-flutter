@@ -43,7 +43,8 @@ void main() {
       ),
       onDismiss: () => dismissed = true,
     )));
-    await tester.pumpAndSettle();
+    // The window's glow pulses forever, so pump past the entrance animation.
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('LEVEL UP!'), findsOneWidget);
     expect(find.text('Lv 9  →  Lv 10'), findsOneWidget);
@@ -62,7 +63,7 @@ void main() {
       change: const LevelChange(fromLevel: 11, toLevel: 12),
       onDismiss: () {},
     )));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('TITLE ACQUIRED'), findsNothing);
   });
 
@@ -79,14 +80,19 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('LV. 1'), findsOneWidget);
+    expect(find.text('QUEST INFO'), findsOneWidget);
+    expect(find.text('[0/100]'), findsNWidgets(3));
+    expect(find.textContaining('CAUTION!', findRichText: true), findsOneWidget);
     expect(find.text("World's Weakest"), findsOneWidget);
 
     await tester.tap(find.byType(LevelHeader));
     await tester.pumpAndSettle();
 
     expect(find.byType(CharacterScreen), findsOneWidget);
-    expect(find.text('STRENGTH'), findsOneWidget);
-    expect(find.text('100 / 100'), findsOneWidget); // HP
-    expect(find.text('7 / 7'), findsOneWidget); // fatigue
+    expect(find.text('STR:'), findsOneWidget);
+    expect(find.text('Hunter'), findsNothing); // JOB is in a rich text
+    expect(find.textContaining('JOB', findRichText: true), findsOneWidget);
+    expect(find.text('100/100'), findsOneWidget); // HP
+    expect(find.text('7/7'), findsOneWidget); // fatigue
   });
 }

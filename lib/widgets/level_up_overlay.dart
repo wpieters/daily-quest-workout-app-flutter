@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../progression/progression_engine.dart';
 import '../utils/theme.dart';
+import 'glow_pulse.dart';
 
 /// Solo Leveling style "system window" for a level-up, including any title
 /// unlocked. Placeholder animation (fade + scale) until real assets exist.
@@ -67,92 +68,88 @@ class _LevelUpOverlayState extends State<LevelUpOverlay>
               ),
               child: Semantics(
                 liveRegion: true,
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 360),
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: AppTheme.systemPanel,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.systemBlue, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.systemBlue.withValues(alpha: 0.5),
-                        blurRadius: 24,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        'NOTIFICATION',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                          letterSpacing: 3,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'LEVEL UP!',
-                        style: TextStyle(
-                          color: AppTheme.systemBlue,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Lv ${change.fromLevel}  →  Lv ${change.toLevel}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (gains.isNotEmpty) ...[
-                        const Divider(color: Colors.white24, height: 32),
-                        for (final gain in gains)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: Text(
-                              gain,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                      ],
-                      if (newTitle != null) ...[
-                        const Divider(color: Colors.white24, height: 32),
+                child: GlowPulse(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 360),
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppTheme.systemPanel,
+                      borderRadius: BorderRadius.circular(8),
+                      border:
+                          Border.all(color: AppTheme.systemBlue, width: 1.5),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         const Text(
-                          'TITLE ACQUIRED',
+                          'NOTIFICATION',
                           style: TextStyle(
-                            color: AppTheme.powerYellow,
+                            color: Colors.white70,
                             fontSize: 12,
                             letterSpacing: 3,
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '[$newTitle]',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppTheme.powerYellow,
-                            fontSize: 20,
+                        const SizedBox(height: 12),
+                        const Text(
+                          'LEVEL UP!',
+                          style: TextStyle(
+                            color: AppTheme.systemBlue,
+                            fontSize: 32,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Lv ${change.fromLevel}  →  Lv ${change.toLevel}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (gains.isNotEmpty) ...[
+                          const Divider(color: Colors.white24, height: 32),
+                          for (final gain in gains)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Text(
+                                gain,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                        ],
+                        if (newTitle != null) ...[
+                          const Divider(color: Colors.white24, height: 32),
+                          const Text(
+                            'TITLE ACQUIRED',
+                            style: TextStyle(
+                              color: AppTheme.powerYellow,
+                              fontSize: 12,
+                              letterSpacing: 3,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '[$newTitle]',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppTheme.powerYellow,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Tap to continue',
+                          style: TextStyle(color: Colors.white38, fontSize: 12),
+                        ),
                       ],
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Tap to continue',
-                        style: TextStyle(color: Colors.white38, fontSize: 12),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),

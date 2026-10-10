@@ -6,6 +6,7 @@ import '../widgets/completion_animation.dart';
 import '../widgets/stage_completion_overlay.dart';
 import '../widgets/level_header.dart';
 import '../widgets/level_up_overlay.dart';
+import '../widgets/quest_info_panel.dart';
 import '../widgets/xp_gain_popup.dart';
 import '../models/exercise_type.dart';
 import '../utils/theme.dart';
@@ -20,10 +21,33 @@ class WorkoutScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final workoutState = ref.watch(workoutProvider);
     final engine = ref.watch(progressionEngineProvider);
-    
+    final notifier = ref.read(workoutProvider.notifier);
+    final day = workoutState.currentDay;
+
     if (workoutState.isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    ExerciseButton button(
+      ExerciseType exercise,
+      int count,
+      double progress,
+      int stage, {
+      bool isRunning = false,
+      bool isEnabled = true,
+    }) {
+      return ExerciseButton(
+        exercise: exercise,
+        count: count,
+        target: 100,
+        progress: progress,
+        stage: stage,
+        isRunning: isRunning,
+        isEnabled: isEnabled,
+        onTap: () => notifier.incrementExercise(exercise),
+        onDecrement: () => notifier.decrementExercise(exercise),
       );
     }
 
@@ -33,25 +57,31 @@ class WorkoutScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'DailyQuest',
+              'DAILYQUEST',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 24,
+                fontSize: 20,
+                letterSpacing: 2,
               ),
             ),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.getPowerLevelColor(workoutState.progress.powerLevelTier),
-                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.getPowerLevelColor(
+                      workoutState.progress.powerLevelTier),
+                ),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                workoutState.progress.powerLevel,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
+                workoutState.progress.powerLevel.toUpperCase(),
+                style: TextStyle(
+                  color: AppTheme.getPowerLevelColor(
+                      workoutState.progress.powerLevelTier),
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
                 ),
               ),
             ),
@@ -60,6 +90,7 @@ class WorkoutScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.history),
+            tooltip: 'History',
             onPressed: () {
               Navigator.push(
                 context,
@@ -69,6 +100,7 @@ class WorkoutScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
             onPressed: () {
               Navigator.push(
                 context,
@@ -84,23 +116,12 @@ class WorkoutScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // Motivational text
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
-                    'TRAIN TO BECOME A FORMIDABLE COMBATANT',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                      color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.8),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                QuestInfoPanel(
+                  day: day,
+                  streak: workoutState.progress.currentStreak,
                 ),
-                
-                const SizedBox(height: 8),
+
+                const SizedBox(height: 16),
 
                 // Level, title and XP
                 Stack(
@@ -125,148 +146,52 @@ class WorkoutScreen extends ConsumerWidget {
                 ),
 
                 const SizedBox(height: 16),
-                
-                // Streak display
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.getPowerLevelGradient(
-                      workoutState.progress.powerLevelTier,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.getPowerLevelColor(
-                          workoutState.progress.powerLevelTier,
-                        ).withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Current Streak',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${workoutState.progress.currentStreak}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Text(
-                        'days',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 24),
-                
+
                 // Exercise buttons grid
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: 2,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 0.8,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.85,
                   children: [
-                    ExerciseButton(
-                      exercise: ExerciseType.pushups,
-                      count: workoutState.currentDay.pushups,
-                      target: 100,
-                      progress: workoutState.currentDay.pushupsProgress,
-                      stage: workoutState.currentDay.pushupsStage,
-                      onTap: () => ref.read(workoutProvider.notifier)
-                          .incrementExercise(ExerciseType.pushups),
-                    ),
-                    ExerciseButton(
-                      exercise: ExerciseType.situps,
-                      count: workoutState.currentDay.situps,
-                      target: 100,
-                      progress: workoutState.currentDay.situpsProgress,
-                      stage: workoutState.currentDay.situpsStage,
-                      onTap: () => ref.read(workoutProvider.notifier)
-                          .incrementExercise(ExerciseType.situps),
-                    ),
-                    ExerciseButton(
-                      exercise: ExerciseType.squats,
-                      count: workoutState.currentDay.squats,
-                      target: 100,
-                      progress: workoutState.currentDay.squatsProgress,
-                      stage: workoutState.currentDay.squatsStage,
-                      onTap: () => ref.read(workoutProvider.notifier)
-                          .incrementExercise(ExerciseType.squats),
-                    ),
-                    ExerciseButton(
-                      exercise: ExerciseType.running,
-                      count: workoutState.currentDay.running,
-                      target: 100,
-                      progress: workoutState.currentDay.runningProgress,
-                      stage: workoutState.currentDay.runningStage,
-                      isRunning: true,
-                      isEnabled: workoutState.currentDay.runningEnabled,
-                      onTap: () => ref.read(workoutProvider.notifier)
-                          .incrementExercise(ExerciseType.running),
-                    ),
+                    button(ExerciseType.pushups, day.pushups,
+                        day.pushupsProgress, day.pushupsStage),
+                    button(ExerciseType.situps, day.situps,
+                        day.situpsProgress, day.situpsStage),
+                    button(ExerciseType.squats, day.squats,
+                        day.squatsProgress, day.squatsStage),
+                    button(ExerciseType.running, day.running,
+                        day.runningProgress, day.runningStage,
+                        isRunning: true, isEnabled: day.runningEnabled),
                   ],
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Running toggle
                 Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                  padding: const EdgeInsets.all(12),
+                  decoration: AppTheme.panel(),
                   child: Row(
                     children: [
                       Checkbox(
-                        value: workoutState.currentDay.runningEnabled,
-                        onChanged: (_) => ref.read(workoutProvider.notifier)
-                            .toggleRunning(),
+                        value: day.runningEnabled,
+                        onChanged: (_) => notifier.toggleRunning(),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text('INCLUDE RUNNING', style: AppTheme.label),
+                            SizedBox(height: 2),
                             Text(
-                              'Include Running',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              'Toggle to include/exclude running from daily completion',
+                              'Counts toward completion and the all-four XP bonus',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey,
+                                color: AppTheme.mutedForeground,
                               ),
                             ),
                           ],
@@ -275,77 +200,24 @@ class WorkoutScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                
-                const SizedBox(height: 24),
-                
-                // Daily completion status
-                if (workoutState.currentDay.isComplete)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Colors.green, Colors.lightGreen],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.green.withValues(alpha: 0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(
-                          Icons.check_circle,
-                          color: Colors.white,
-                          size: 48,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Daily Quest Complete!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Amazing work, warrior!',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
               ],
             ),
           ),
-          
+
           // Completion animation overlay
           if (workoutState.showCompletionAnimation)
             CompletionAnimation(
               powerLevel: workoutState.progress.powerLevelTier,
-              onComplete: () {
-                ref.read(workoutProvider.notifier).hideCompletionAnimation();
-              },
+              onComplete: notifier.hideCompletionAnimation,
             ),
-          
+
           // Stage completion overlay
-          if (workoutState.lastCompletedStage > 0 && 
+          if (workoutState.lastCompletedStage > 0 &&
               workoutState.lastCompletedExercise != null)
             StageCompletionOverlay(
               exercise: workoutState.lastCompletedExercise!,
               stage: workoutState.lastCompletedStage,
-              onComplete: () {
-                ref.read(workoutProvider.notifier).hideStageAnimation();
-              },
+              onComplete: notifier.hideStageAnimation,
             ),
 
           // Level-up ceremony, after the daily completion animation
@@ -354,9 +226,7 @@ class WorkoutScreen extends ConsumerWidget {
             LevelUpOverlay(
               key: ObjectKey(workoutState.pendingLevelUps.first),
               change: workoutState.pendingLevelUps.first,
-              onDismiss: () {
-                ref.read(workoutProvider.notifier).dismissLevelUp();
-              },
+              onDismiss: notifier.dismissLevelUp,
             ),
         ],
       ),

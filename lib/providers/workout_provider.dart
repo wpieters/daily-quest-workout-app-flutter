@@ -197,6 +197,39 @@ class WorkoutNotifier extends StateNotifier<WorkoutState> {
     await _storageService.saveTodaysWorkout(state.currentDay);
   }
 
+  /// Undoes a mis-tap. XP already awarded today is kept, and reaching the
+  /// target again does not award it twice.
+  Future<void> decrementExercise(ExerciseType exercise) async {
+    if (dateOnly(state.currentDay.date).isBefore(_today)) {
+      await rollover();
+    }
+
+    final day = state.currentDay;
+    WorkoutDay newDay;
+    switch (exercise) {
+      case ExerciseType.pushups:
+        if (day.pushups <= 0) return;
+        newDay = day.copyWith(pushups: day.pushups - 1);
+        break;
+      case ExerciseType.situps:
+        if (day.situps <= 0) return;
+        newDay = day.copyWith(situps: day.situps - 1);
+        break;
+      case ExerciseType.squats:
+        if (day.squats <= 0) return;
+        newDay = day.copyWith(squats: day.squats - 1);
+        break;
+      case ExerciseType.running:
+        if (!day.runningEnabled || day.running <= 0) return;
+        newDay = day.copyWith(running: day.running - 1);
+        break;
+    }
+
+    state = state.copyWith(currentDay: newDay, lastCompletedStage: -1);
+    await _haptic(30);
+    await _storageService.saveTodaysWorkout(newDay);
+  }
+
   /// Awards any XP the current day is worth beyond what it already earned.
   /// Awards only ever grow, so resetting or toggling never re-awards or
   /// revokes XP.
@@ -252,6 +285,9 @@ class WorkoutNotifier extends StateNotifier<WorkoutState> {
   }
 
   Future<void> _completeDay() async {
+    // Only celebrate the first completion of the day, not a re-completion
+    // after undoing a rep.
+    final firstCompletion = !state.currentDay.completed;
     final completedDay = state.currentDay.copyWith(completed: true);
     final alreadyCounted = state.progress.history.any((d) =>
         d.completed && dateOnly(d.date) == dateOnly(completedDay.date));
@@ -280,7 +316,7 @@ class WorkoutNotifier extends StateNotifier<WorkoutState> {
     state = state.copyWith(
       currentDay: completedDay,
       progress: newProgress,
-      showCompletionAnimation: true,
+      showCompletionAnimation: firstCompletion,
     );
 
     await _storageService.saveProgress(newProgress);

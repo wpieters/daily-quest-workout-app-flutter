@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/workout_provider.dart';
 import '../utils/theme.dart';
 
-/// Character sheet: level, title, derived HP/MP, fatigue and stats.
+/// The STATUS window: level, job, title, bars, and the stat grid.
 class CharacterScreen extends ConsumerWidget {
   const CharacterScreen({super.key});
 
@@ -16,67 +16,168 @@ class CharacterScreen extends ConsumerWidget {
     final level = engine.levelOf(p);
     final span = leveling.xpSpanOfLevel(p.totalXp);
     final into = leveling.xpIntoLevel(p.totalXp);
+    final hp = p.stats.hp(config);
+    final mp = p.stats.mp(config);
 
     return Scaffold(
-      backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
-        title: const Text('Status'),
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        elevation: 0,
+        title: const Text(
+          'STATUS',
+          style: TextStyle(
+            color: AppTheme.questPrimary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 3,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            color: AppTheme.questPrimary.withValues(alpha: 0.3),
+          ),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _Panel(
+          // Level, job and title
+          Column(
             children: [
-              _row('LEVEL', '$level'),
-              _row('TITLE', engine.titleOf(p)),
-              _row('XP', span == 0 ? 'MAX' : '$into / $span'),
-              _row('TOTAL XP', '${p.totalXp}'),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _Panel(
-            children: [
-              _bar('HP', p.stats.hp(config), p.stats.hp(config),
-                  Colors.redAccent),
-              _bar('MP', p.stats.mp(config), p.stats.mp(config),
-                  AppTheme.systemBlue),
-              _bar('FATIGUE', p.fatigueCurrent, p.fatigueMax, Colors.amber),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _Panel(
-            children: [
-              _stat('STRENGTH', p.stats.strength, 'Push-ups'),
-              _stat('VITALITY', p.stats.vitality, 'Sit-ups'),
-              _stat('AGILITY', p.stats.agility, 'Squats'),
-              _stat('INTELLIGENCE', p.stats.intelligence, 'Skills & items'),
-              _stat('PERCEPTION', p.stats.perception, 'Skills & items'),
-              const Divider(color: Colors.white24, height: 24),
-              _row('AVAILABLE POINTS', '${p.skillPoints}'),
-            ],
-          ),
-          if (p.consecutiveMissedDays > 0) ...[
-            const SizedBox(height: 16),
-            _Panel(
-              children: [
-                _row(
-                  'MISSED DAYS',
-                  '${p.consecutiveMissedDays} in a row',
-                  valueColor: Colors.redAccent,
+              Text(
+                '$level',
+                style: const TextStyle(
+                  color: AppTheme.foreground,
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text(
-                  p.consecutiveMissedDays < config.levelProtectionDays
-                      ? 'Level protected for '
-                          '${config.levelProtectionDays - p.consecutiveMissedDays} '
-                          'more missed day(s).'
-                      : 'Level protection lost. Complete an exercise to stop '
-                          'losing XP.',
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+              const Text(
+                'LEVEL',
+                style: TextStyle(
+                  color: AppTheme.mutedForeground,
+                  fontSize: 12,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _labelled('JOB', 'Hunter'),
+              const SizedBox(height: 4),
+              _labelled('TITLE', engine.titleOf(p)),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Bars
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: AppTheme.panel(borderAlpha: 0.2),
+            child: Column(
+              children: [
+                _bar('EXP', into, span == 0 ? into : span, AppTheme.powerPurple,
+                    span == 0 ? 'MAX' : null),
+                _bar('HP', hp, hp, AppTheme.questDanger),
+                _bar('MP', mp, mp, AppTheme.questPrimary),
+                _bar('FATIGUE', p.fatigueCurrent, p.fatigueMax,
+                    AppTheme.questSuccess),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Stat grid
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: AppTheme.panel(borderAlpha: 0.2),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          _stat('STR', p.stats.strength),
+                          _stat('VIT', p.stats.vitality),
+                          _stat('AGI', p.stats.agility),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          _stat('INT', p.stats.intelligence),
+                          _stat('PER', p.stats.perception),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: Row(
+                              children: [
+                                const Text('POINTS:', style: _statLabel),
+                                const Spacer(),
+                                Text(
+                                  '${p.skillPoints}',
+                                  style: const TextStyle(
+                                    color: AppTheme.questWarning,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(height: 24),
+                const Text(
+                  'STR ← PUSH-UPS · VIT ← SIT-UPS · AGI ← SQUATS\n'
+                  'INT & PER ← SKILLS AND ITEMS',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppTheme.mutedForeground,
+                    fontSize: 10,
+                    letterSpacing: 1,
+                    height: 1.5,
+                  ),
                 ),
               ],
+            ),
+          ),
+
+          if (p.consecutiveMissedDays > 0) ...[
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: AppTheme.panel(borderColor: AppTheme.questDanger),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'WARNING - ${p.consecutiveMissedDays} DAILY QUEST(S) '
+                    'MISSED IN A ROW',
+                    style: const TextStyle(
+                      color: AppTheme.questDanger,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    p.consecutiveMissedDays < config.levelProtectionDays
+                        ? 'Level protected for '
+                            '${config.levelProtectionDays - p.consecutiveMissedDays} '
+                            'more missed day(s).'
+                        : 'Level protection lost. Complete an exercise to stop '
+                            'losing XP.',
+                    style: const TextStyle(
+                      color: AppTheme.mutedForeground,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ],
@@ -84,62 +185,63 @@ class CharacterScreen extends ConsumerWidget {
     );
   }
 
-  static const _label = TextStyle(
-    color: Colors.white70,
-    fontSize: 13,
-    fontWeight: FontWeight.w600,
-    letterSpacing: 1,
+  static const _statLabel = TextStyle(
+    color: AppTheme.foreground,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
   );
 
-  Widget _row(String label, String value, {Color valueColor = Colors.white}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
+  Widget _labelled(String label, String value) {
+    return Text.rich(
+      TextSpan(
         children: [
-          Text(label, style: _label),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                color: valueColor,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
+          TextSpan(
+            text: '$label: ',
+            style: const TextStyle(
+              color: AppTheme.mutedForeground,
+              fontSize: 11,
+              letterSpacing: 1,
             ),
           ),
+          TextSpan(text: value),
         ],
       ),
+      style: const TextStyle(color: AppTheme.foreground, fontSize: 14),
     );
   }
 
-  Widget _bar(String label, int value, int max, Color color) {
+  Widget _bar(String label, int value, int max, Color color, [String? text]) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(label, style: _label),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppTheme.foreground,
+                  fontSize: 12,
+                  letterSpacing: 1,
+                ),
+              ),
               const Spacer(),
               Text(
-                '$value / $max',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                text ?? '$value/$max',
+                style: AppTheme.mono.copyWith(
+                  color: AppTheme.mutedForeground,
+                  fontSize: 12,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(2),
             child: LinearProgressIndicator(
               value: max == 0 ? 0 : value / max,
-              minHeight: 8,
-              backgroundColor: Colors.white12,
+              minHeight: 6,
+              backgroundColor: AppTheme.muted,
               valueColor: AlwaysStoppedAnimation(color),
             ),
           ),
@@ -148,60 +250,18 @@ class CharacterScreen extends ConsumerWidget {
     );
   }
 
-  Widget _stat(String label, int value, String source) {
+  Widget _stat(String label, int value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: _label),
-                Text(
-                  source,
-                  style: const TextStyle(color: Colors.white38, fontSize: 11),
-                ),
-              ],
-            ),
-          ),
+          Text('$label:', style: _statLabel),
+          const Spacer(),
           Text(
             '$value',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTheme.mono.copyWith(fontSize: 16),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Panel extends StatelessWidget {
-  final List<Widget> children;
-
-  const _Panel({required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.systemPanel,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.systemBlue.withValues(alpha: 0.6)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.systemBlue.withValues(alpha: 0.2),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
       ),
     );
   }

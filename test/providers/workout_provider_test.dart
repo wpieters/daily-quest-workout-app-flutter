@@ -174,6 +174,61 @@ void main() {
     });
   });
 
+  group('Minus button', () {
+    setUp(() => SharedPreferences.setMockInitialValues({}));
+
+    test('floors at zero', () async {
+      final (c, n) = await open();
+      await n.decrementExercise(ExerciseType.pushups);
+      expect(c.read(workoutProvider).currentDay.pushups, 0);
+      await tap(n, ExerciseType.pushups, 3);
+      await n.decrementExercise(ExerciseType.pushups);
+      expect(c.read(workoutProvider).currentDay.pushups, 2);
+    });
+
+    test('does nothing to running while running is disabled', () async {
+      final (c, n) = await open();
+      await tap(n, ExerciseType.running, 3);
+      await n.toggleRunning();
+      await n.decrementExercise(ExerciseType.running);
+      expect(c.read(workoutProvider).currentDay.running, 3);
+    });
+
+    test('undoing a rep keeps XP and re-completing does not re-award',
+        () async {
+      final (c, n) = await open();
+      await tap(n, ExerciseType.pushups, 100);
+      await n.decrementExercise(ExerciseType.pushups);
+
+      var state = c.read(workoutProvider);
+      expect(state.currentDay.pushups, 99);
+      expect(state.progress.progression.totalXp, 100);
+
+      await n.incrementExercise(ExerciseType.pushups);
+      state = c.read(workoutProvider);
+      expect(state.progress.progression.totalXp, 100);
+      expect(state.xpGainId, 1);
+    });
+
+    test('re-completing the day does not replay the celebration', () async {
+      final (c, n) = await open();
+      await n.toggleRunning();
+      await tap(n, ExerciseType.pushups, 100);
+      await tap(n, ExerciseType.situps, 100);
+      await tap(n, ExerciseType.squats, 100);
+      expect(c.read(workoutProvider).showCompletionAnimation, isTrue);
+      n.hideCompletionAnimation();
+
+      await n.decrementExercise(ExerciseType.squats);
+      await n.incrementExercise(ExerciseType.squats);
+
+      final state = c.read(workoutProvider);
+      expect(state.currentDay.isComplete, isTrue);
+      expect(state.showCompletionAnimation, isFalse);
+      expect(state.progress.totalWorkouts, 1);
+    });
+  });
+
   group('Missed days', () {
     ProgressionState activeMonday() => ProgressionState.initial().copyWith(
           totalXp: leveling.levelFloor(10) + 300,
