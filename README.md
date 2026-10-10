@@ -54,5 +54,5 @@ The app architecture follows clean architecture principles with Riverpod for sta
 ## Acknowledgements
 
 - Workout routine inspired by One Punch Man manga/anime
-- Power-up progression concept from Solo Leveling
+- Daily Quest framing, System window UI, and XP/level/title progression from Solo Leveling manhwa/anime
 - Animation sequences inspired by Dragon Ball Z transformation scenes
