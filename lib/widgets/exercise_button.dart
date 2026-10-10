@@ -93,9 +93,9 @@ class _ExerciseButtonState extends State<ExerciseButton>
                       : isComplete
                           ? [Colors.green.shade400, Colors.green.shade600]
                           : [
-                              buttonColor.withOpacity(0.8),
+                              buttonColor.withValues(alpha: 0.8),
                               buttonColor,
-                              buttonColor.withOpacity(0.8),
+                              buttonColor.withValues(alpha: 0.8),
                             ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -104,9 +104,9 @@ class _ExerciseButtonState extends State<ExerciseButton>
                 boxShadow: [
                   BoxShadow(
                     color: !widget.isEnabled
-                        ? Colors.grey.withOpacity(0.3)
+                        ? Colors.grey.withValues(alpha: 0.3)
                         : (isComplete ? Colors.green : buttonColor)
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
@@ -127,7 +127,7 @@ class _ExerciseButtonState extends State<ExerciseButton>
                           width: 60,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -144,7 +144,7 @@ class _ExerciseButtonState extends State<ExerciseButton>
                         Text(
                           widget.exercise.displayName,
                           style: TextStyle(
-                            color: widget.isEnabled ? Colors.white : Colors.white.withOpacity(0.6),
+                            color: widget.isEnabled ? Colors.white : Colors.white.withValues(alpha: 0.6),
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -166,7 +166,7 @@ class _ExerciseButtonState extends State<ExerciseButton>
                               TextSpan(
                                 text: '/${widget.target}',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
+                                  color: Colors.white.withValues(alpha: 0.7),
                                   fontSize: 16,
                                 ),
                               ),
@@ -181,7 +181,7 @@ class _ExerciseButtonState extends State<ExerciseButton>
                           width: double.infinity,
                           height: 6,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.3),
+                            color: Colors.white.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(3),
                           ),
                           child: FractionallySizedBox(
@@ -205,7 +205,7 @@ class _ExerciseButtonState extends State<ExerciseButton>
                             Text(
                               'Stage ${widget.stage}/10',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -227,7 +227,7 @@ class _ExerciseButtonState extends State<ExerciseButton>
                           Text(
                             '${(widget.count * 0.1).toStringAsFixed(1)}km',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 10,
                             ),
                           ),

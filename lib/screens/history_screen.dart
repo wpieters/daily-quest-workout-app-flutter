@@ -76,7 +76,7 @@ class HistoryScreen extends ConsumerWidget {
         boxShadow: [
           BoxShadow(
             color: (isToday ? AppTheme.primaryBlue : Colors.black)
-                .withOpacity(0.1),
+                .withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -215,7 +215,7 @@ class HistoryScreen extends ConsumerWidget {
               value: totalProgress,
               strokeWidth: 3,
               backgroundColor: Colors.grey[300],
-              valueColor: AlwaysStoppedAnimation<Color>(
+              valueColor: const AlwaysStoppedAnimation<Color>(
                 AppTheme.primaryBlue,
               ),
             ),
@@ -246,7 +246,7 @@ class HistoryScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: enabled ? null : Border.all(color: Colors.grey[300]!),
       ),
@@ -329,7 +329,7 @@ class HistoryScreen extends ConsumerWidget {
     } else if (difference == 1) {
       return 'Yesterday';
     } else if (difference < 7) {
-      return '${difference} days ago';
+      return '$difference days ago';
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }

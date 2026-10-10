@@ -36,7 +36,8 @@ class LevelHeader extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppTheme.systemPanel,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppTheme.systemBlue.withValues(alpha: 0.6)),
+            border:
+                Border.all(color: AppTheme.systemBlue.withValues(alpha: 0.6)),
             boxShadow: [
               BoxShadow(
                 color: AppTheme.systemBlue.withValues(alpha: 0.25),

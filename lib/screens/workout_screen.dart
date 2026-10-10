@@ -94,7 +94,7 @@ class WorkoutScreen extends ConsumerWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.5,
-                      color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.8),
+                      color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.8),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -139,7 +139,7 @@ class WorkoutScreen extends ConsumerWidget {
                       BoxShadow(
                         color: AppTheme.getPowerLevelColor(
                           workoutState.progress.powerLevelTier,
-                        ).withOpacity(0.3),
+                        ).withValues(alpha: 0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -237,7 +237,7 @@ class WorkoutScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -292,7 +292,7 @@ class WorkoutScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.green.withOpacity(0.3),
+                          color: Colors.green.withValues(alpha: 0.3),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),

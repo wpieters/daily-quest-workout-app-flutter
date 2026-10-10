@@ -135,8 +135,8 @@ class _CompletionAnimationState extends State<CompletionAnimation>
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: [
-                    powerColor.withOpacity(0.1),
-                    Colors.black.withOpacity(0.8),
+                    powerColor.withValues(alpha: 0.1),
+                    Colors.black.withValues(alpha: 0.8),
                   ],
                   stops: const [0.0, 1.0],
                 ),
@@ -171,7 +171,7 @@ class _CompletionAnimationState extends State<CompletionAnimation>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: powerColor.withOpacity(0.5),
+                                  color: powerColor.withValues(alpha: 0.5),
                                   blurRadius: 4,
                                   spreadRadius: 2,
                                 ),
@@ -195,9 +195,9 @@ class _CompletionAnimationState extends State<CompletionAnimation>
                           decoration: BoxDecoration(
                             gradient: RadialGradient(
                               colors: [
-                                powerColor.withOpacity(0.9),
-                                powerColor.withOpacity(0.6),
-                                powerColor.withOpacity(0.3),
+                                powerColor.withValues(alpha: 0.9),
+                                powerColor.withValues(alpha: 0.6),
+                                powerColor.withValues(alpha: 0.3),
                                 Colors.transparent,
                               ],
                               stops: const [0.0, 0.5, 0.8, 1.0],
@@ -213,7 +213,7 @@ class _CompletionAnimationState extends State<CompletionAnimation>
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: powerColor.withOpacity(0.5),
+                                    color: powerColor.withValues(alpha: 0.5),
                                     blurRadius: 20,
                                     spreadRadius: 5,
                                   ),
@@ -266,7 +266,7 @@ class _CompletionAnimationState extends State<CompletionAnimation>
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 2,
-                                shadows: [
+                                shadows: const [
                                   Shadow(
                                     color: Colors.white,
                                     blurRadius: 5,
