@@ -128,7 +128,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Workout Tracker inspired by One Punch Man',
+                  'Workout Tracker inspired by One Punch Man and Solo Leveling',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
