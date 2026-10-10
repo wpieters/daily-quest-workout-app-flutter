@@ -4,8 +4,8 @@ applications:
       phases:
         preBuild:
           commands:
-            # Install xz utility for extracting Flutter SDK
-            - yum install -y xz
+            # Install xz utility for extracting Flutter SDK (build runs as non-root)
+            - command -v xz || sudo yum install -y xz
             # Download and extract Flutter SDK (wget: curl produced truncated files)
             - wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.7-stable.tar.xz -O flutter.tar.xz
             - tar xf flutter.tar.xz

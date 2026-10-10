@@ -228,7 +228,7 @@ applications:
       phases:
         preBuild:
           commands:
-            - yum install -y xz
+            - command -v xz || sudo yum install -y xz
             - wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.7-stable.tar.xz -O flutter.tar.xz
             - tar xf flutter.tar.xz
             - export PATH="$PATH:`pwd`/flutter/bin"
