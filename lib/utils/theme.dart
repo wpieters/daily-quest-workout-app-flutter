@@ -78,7 +78,7 @@ class AppTheme {
         backgroundColor: background,
         foregroundColor: foreground,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: card,
         shape: RoundedRectangleBorder(
@@ -86,7 +86,7 @@ class AppTheme {
           side: BorderSide(color: questPrimary.withValues(alpha: 0.3)),
         ),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: background,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),

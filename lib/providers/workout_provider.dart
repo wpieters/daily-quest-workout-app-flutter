@@ -13,13 +13,8 @@ final progressionEngineProvider = Provider<ProgressionEngine>((ref) {
 
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
-final workoutProvider = StateNotifierProvider<WorkoutNotifier, WorkoutState>((ref) {
-  return WorkoutNotifier(
-    ref.read(storageServiceProvider),
-    ref.read(progressionEngineProvider),
-    ref.read(clockProvider),
-  );
-});
+final workoutProvider =
+    NotifierProvider<WorkoutNotifier, WorkoutState>(WorkoutNotifier.new);
 
 class WorkoutState {
   final WorkoutDay currentDay;
@@ -74,27 +69,33 @@ class WorkoutState {
   }
 }
 
-class WorkoutNotifier extends StateNotifier<WorkoutState> {
-  final StorageService _storageService;
-  final ProgressionEngine _engine;
-  final DateTime Function() _clock;
+class WorkoutNotifier extends Notifier<WorkoutState> {
+  late StorageService _storageService;
+  late ProgressionEngine _engine;
+  late DateTime Function() _clock;
 
   /// Completes once saved data has been loaded and past days settled.
-  late final Future<void> ready;
+  late Future<void> ready;
 
-  WorkoutNotifier(this._storageService, this._engine, this._clock)
-      : super(WorkoutState(
-          currentDay: WorkoutDay(date: dateOnly(_clock())),
-          progress: UserProgress.initial(),
-        )) {
-    ready = _loadData();
+  @override
+  WorkoutState build() {
+    _storageService = ref.read(storageServiceProvider);
+    _engine = ref.read(progressionEngineProvider);
+    _clock = ref.read(clockProvider);
+
+    // `state` can't be touched until build() returns, so load afterwards.
+    ready = Future.microtask(_loadData);
+
+    return WorkoutState(
+      currentDay: WorkoutDay(date: dateOnly(_clock())),
+      progress: UserProgress.initial(),
+      isLoading: true,
+    );
   }
 
   DateTime get _today => dateOnly(_clock());
 
   Future<void> _loadData() async {
-    state = state.copyWith(isLoading: true);
-
     final progress = await _storageService.loadProgress();
     final storedDay = await _storageService.loadStoredWorkout();
 
@@ -261,7 +262,7 @@ class WorkoutNotifier extends StateNotifier<WorkoutState> {
 
   Future<void> _haptic(int durationMs) async {
     try {
-      if (await Vibration.hasVibrator() ?? false) {
+      if (await Vibration.hasVibrator()) {
         Vibration.vibrate(duration: durationMs);
       }
     } catch (_) {

@@ -61,7 +61,7 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: const Text('Toggle running requirement for daily completion'),
                 value: workoutState.currentDay.runningEnabled,
                 onChanged: (_) => ref.read(workoutProvider.notifier).toggleRunning(),
-                activeColor: AppTheme.primaryBlue,
+                activeThumbColor: AppTheme.primaryBlue,
               ),
             ],
           ),
