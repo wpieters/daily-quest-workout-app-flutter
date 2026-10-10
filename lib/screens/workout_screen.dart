@@ -4,8 +4,12 @@ import '../providers/workout_provider.dart';
 import '../widgets/exercise_button.dart';
 import '../widgets/completion_animation.dart';
 import '../widgets/stage_completion_overlay.dart';
+import '../widgets/level_header.dart';
+import '../widgets/level_up_overlay.dart';
+import '../widgets/xp_gain_popup.dart';
 import '../models/exercise_type.dart';
 import '../utils/theme.dart';
+import 'character_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
 
@@ -15,6 +19,7 @@ class WorkoutScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final workoutState = ref.watch(workoutProvider);
+    final engine = ref.watch(progressionEngineProvider);
     
     if (workoutState.isLoading) {
       return const Scaffold(
@@ -96,6 +101,30 @@ class WorkoutScreen extends ConsumerWidget {
                 ),
                 
                 const SizedBox(height: 8),
+
+                // Level, title and XP
+                Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.topRight,
+                  children: [
+                    LevelHeader(
+                      progression: workoutState.progress.progression,
+                      engine: engine,
+                      onTap: () => _openCharacterSheet(context),
+                    ),
+                    if (workoutState.xpGainId > 0)
+                      Positioned(
+                        right: 16,
+                        top: -8,
+                        child: XpGainPopup(
+                          key: ValueKey(workoutState.xpGainId),
+                          amount: workoutState.lastXpGain,
+                        ),
+                      ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
                 
                 // Streak display
                 Container(
@@ -318,8 +347,26 @@ class WorkoutScreen extends ConsumerWidget {
                 ref.read(workoutProvider.notifier).hideStageAnimation();
               },
             ),
+
+          // Level-up ceremony, after the daily completion animation
+          if (workoutState.pendingLevelUps.isNotEmpty &&
+              !workoutState.showCompletionAnimation)
+            LevelUpOverlay(
+              key: ObjectKey(workoutState.pendingLevelUps.first),
+              change: workoutState.pendingLevelUps.first,
+              onDismiss: () {
+                ref.read(workoutProvider.notifier).dismissLevelUp();
+              },
+            ),
         ],
       ),
+    );
+  }
+
+  void _openCharacterSheet(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CharacterScreen()),
     );
   }
 }
