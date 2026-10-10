@@ -28,7 +28,7 @@ class DailyResetService {
 
   void _performDailyReset() {
     final workoutNotifier = _ref.read(workoutProvider.notifier);
-    workoutNotifier.resetDay();
+    workoutNotifier.rollover();
   }
 
   void dispose() {

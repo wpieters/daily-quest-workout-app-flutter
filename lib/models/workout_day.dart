@@ -1,3 +1,5 @@
+import '../progression/progression_state.dart';
+
 class WorkoutDay {
   final DateTime date;
   final int pushups;
@@ -6,6 +8,8 @@ class WorkoutDay {
   final int running; // in 100m units
   final bool runningEnabled;
   final bool completed;
+  final int xpEarned; // XP already awarded for this day; awards never repeat
+  final bool bonusAwarded;
 
   const WorkoutDay({
     required this.date,
@@ -15,6 +19,8 @@ class WorkoutDay {
     this.running = 0,
     this.runningEnabled = true,
     this.completed = false,
+    this.xpEarned = 0,
+    this.bonusAwarded = false,
   });
 
   WorkoutDay copyWith({
@@ -25,6 +31,8 @@ class WorkoutDay {
     int? running,
     bool? runningEnabled,
     bool? completed,
+    int? xpEarned,
+    bool? bonusAwarded,
   }) {
     return WorkoutDay(
       date: date ?? this.date,
@@ -34,6 +42,8 @@ class WorkoutDay {
       running: running ?? this.running,
       runningEnabled: runningEnabled ?? this.runningEnabled,
       completed: completed ?? this.completed,
+      xpEarned: xpEarned ?? this.xpEarned,
+      bonusAwarded: bonusAwarded ?? this.bonusAwarded,
     );
   }
 
@@ -46,6 +56,8 @@ class WorkoutDay {
       'running': running,
       'runningEnabled': runningEnabled,
       'completed': completed,
+      'xpEarned': xpEarned,
+      'bonusAwarded': bonusAwarded,
     };
   }
 
@@ -58,6 +70,8 @@ class WorkoutDay {
       running: json['running'] ?? 0,
       runningEnabled: json['runningEnabled'] ?? true,
       completed: json['completed'] ?? false,
+      xpEarned: json['xpEarned'] ?? 0,
+      bonusAwarded: json['bonusAwarded'] ?? false,
     );
   }
 
@@ -67,6 +81,16 @@ class WorkoutDay {
     final runningComplete = !runningEnabled || running >= target;
     return exercisesComplete && runningComplete;
   }
+
+  DaySummary get summary => DaySummary.fromCounts(
+        pushups: pushups,
+        situps: situps,
+        squats: squats,
+        running: running,
+        runningEnabled: runningEnabled,
+      );
+
+  bool get hasActivity => pushups + situps + squats + running > 0;
 
   int get pushupsStage => (pushups / 10).floor().clamp(0, 10);
   int get situpsStage => (situps / 10).floor().clamp(0, 10);

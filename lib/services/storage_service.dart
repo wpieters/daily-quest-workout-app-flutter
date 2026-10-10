@@ -25,7 +25,7 @@ class StorageService {
       // If there's an error loading, return default
     }
     
-    return const UserProgress();
+    return UserProgress.initial();
   }
 
   Future<void> saveProgress(UserProgress progress) async {
@@ -38,31 +38,22 @@ class StorageService {
     }
   }
 
-  Future<WorkoutDay> loadTodaysWorkout() async {
+  /// The most recently saved workout day, whatever its date. Days that have
+  /// ended are settled by the workout provider, so this must not drop them.
+  Future<WorkoutDay?> loadStoredWorkout() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final workoutJson = prefs.getString(_todayWorkoutKey);
       
       if (workoutJson != null) {
         final workoutMap = jsonDecode(workoutJson) as Map<String, dynamic>;
-        final workoutDay = WorkoutDay.fromJson(workoutMap);
-        
-        // Check if it's still today
-        final now = DateTime.now();
-        final workoutDate = workoutDay.date;
-        
-        if (workoutDate.year == now.year &&
-            workoutDate.month == now.month &&
-            workoutDate.day == now.day) {
-          return workoutDay;
-        }
+        return WorkoutDay.fromJson(workoutMap);
       }
     } catch (e) {
       // If there's an error loading, return default
     }
     
-    // Return new workout for today
-    return WorkoutDay(date: DateTime.now());
+    return null;
   }
 
   Future<void> saveTodaysWorkout(WorkoutDay workout) async {
