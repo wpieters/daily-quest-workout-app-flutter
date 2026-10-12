@@ -96,6 +96,7 @@ class StorageService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_progressKey);
       await prefs.remove(_todayWorkoutKey);
+      await prefs.remove(_reminderSettingsKey);
     } catch (e) {
       // Handle error silently
     }

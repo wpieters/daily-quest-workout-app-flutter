@@ -243,12 +243,21 @@ class SettingsScreen extends ConsumerWidget {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (resetAll) {
-                // TODO: Implement full reset
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Full reset not implemented yet')),
+                final messenger = ScaffoldMessenger.of(context);
+                Navigator.pop(context);
+                // Unsubscribe first so the server stops sending, then wipe.
+                final reminders = ref.read(reminderProvider.notifier);
+                if (ref.read(reminderProvider).settings.enabled) {
+                  await reminders.disable();
+                }
+                await ref.read(workoutProvider.notifier).resetAll();
+                await reminders.reload();
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('All data reset')),
                 );
+                return;
               } else {
                 ref.read(workoutProvider.notifier).resetDay();
                 ScaffoldMessenger.of(context).showSnackBar(

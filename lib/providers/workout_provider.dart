@@ -373,6 +373,17 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     }
   }
 
+  /// Wipes everything: today's counters, history, streaks and progression.
+  /// Reminder settings are cleared from storage too; the caller is expected
+  /// to unsubscribe through [ReminderNotifier] first.
+  Future<void> resetAll() async {
+    await _storageService.clearAllData();
+    state = WorkoutState(
+      currentDay: WorkoutDay(date: _today),
+      progress: UserProgress.initial(),
+    );
+  }
+
   /// Zeroes today's counters. XP already earned today is kept and not
   /// re-awarded.
   Future<void> resetDay() async {
