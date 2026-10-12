@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+### Terraform / infra ###
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.plan
+.terraformrc
+terraform.rc
+infra/terraform/**/.build/
+infra/lambda/**/node_modules/
+*.auto.tfvars
