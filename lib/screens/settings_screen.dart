@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/reminder_settings.dart';
+import '../providers/reminder_provider.dart';
 import '../providers/workout_provider.dart';
 import '../services/daily_reset_service.dart';
+import '../services/reminder_service.dart';
 import '../utils/theme.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -67,7 +70,17 @@ class SettingsScreen extends ConsumerWidget {
           ),
           
           const SizedBox(height: 24),
-          
+
+          // Reminders (hidden when no backend is configured, ADR 0012)
+          if (!ref.watch(reminderProvider).hidden) ...[
+            _buildSection(
+              context,
+              'Reminders',
+              [const _ReminderSettings()],
+            ),
+            const SizedBox(height: 24),
+          ],
+
           // System Info
           _buildSection(
             context,
@@ -177,7 +190,12 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          child: Column(children: children),
+          // ListTiles need a Material ancestor inside the decorated box or
+          // their ink effects are hidden (and debug builds assert).
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(children: children),
+          ),
         ),
       ],
     );
@@ -207,12 +225,6 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _formatDuration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    return '${hours}h ${minutes}m';
   }
 
   void _showResetDialog(BuildContext context, WidgetRef ref, bool resetAll) {
@@ -254,5 +266,88 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    return '${hours}h ${minutes}m';
+  }
+}
+
+/// Master switch plus one row per slot. Each slot can be switched off or
+/// given its own time.
+class _ReminderSettings extends ConsumerWidget {
+  const _ReminderSettings();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(reminderProvider);
+    final notifier = ref.read(reminderProvider.notifier);
+
+    final blocker = switch (state.status) {
+      ReminderStatus.needsInstall =>
+        'Add DailyQuest to your Home Screen to enable reminders.',
+      ReminderStatus.denied =>
+        'Notifications are blocked for this site. Allow them in your browser settings.',
+      _ => null,
+    };
+    if (blocker != null) {
+      return ListTile(
+        leading: const Icon(Icons.notifications_off, color: AppTheme.questWarning),
+        title: const Text('Daily reminders'),
+        subtitle: Text(blocker),
+      );
+    }
+
+    final settings = state.settings;
+    return Column(
+      children: [
+        SwitchListTile(
+          title: const Text('Daily reminders'),
+          subtitle: Text(state.error ??
+              'Push notifications while the quest is still open'),
+          value: settings.enabled,
+          onChanged: state.busy ? null : notifier.setEnabled,
+          activeThumbColor: AppTheme.primaryBlue,
+        ),
+        for (final slot in ReminderSlot.values)
+          CheckboxListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(slot.label),
+            subtitle: Text(slot.description),
+            value: settings[slot] != null,
+            onChanged: (on) => notifier.setSlot(
+              slot,
+              on == true ? ReminderSettings.defaults[slot] : null,
+            ),
+            secondary: TextButton(
+              onPressed: settings[slot] == null
+                  ? null
+                  : () => _pickTime(context, notifier, slot, settings[slot]!),
+              child: Text(
+                settings[slot]?.hhmm ?? 'off',
+                style: AppTheme.mono.copyWith(
+                  color: settings[slot] == null
+                      ? AppTheme.mutedForeground
+                      : AppTheme.questPrimary,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _pickTime(BuildContext context, ReminderNotifier notifier,
+      ReminderSlot slot, ReminderTime current) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: current.hour, minute: current.minute),
+      helpText: '${slot.label.toUpperCase()} REMINDER',
+    );
+    if (picked != null) {
+      await notifier.setSlot(slot, ReminderTime(picked.hour, picked.minute));
+    }
   }
 }

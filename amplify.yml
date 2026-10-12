@@ -26,7 +26,8 @@ applications:
         build:
           commands:
             - export PATH="$PATH:`pwd`/flutter/bin"
-            - flutter build web --release
+            # REMINDERS_API_URL is the `reminders_api_url` output of infra/terraform
+            - flutter build web --release --dart-define=REMINDERS_API_URL=https://7xqk6vcnevbxx32k3ris3sfd5e0tdujd.lambda-url.us-east-1.on.aws
       artifacts:
         baseDirectory: build/web
         files:

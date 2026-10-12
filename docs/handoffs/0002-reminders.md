@@ -23,19 +23,21 @@ Three optional, user-set reminders a day, delivered as push notifications to the
 Times are local to the device's timezone. Each can be switched off.
 
 ## Done so far
-- `infra/terraform/`: DynamoDB table, API Lambda with Function URL, dispatch Lambda on a 15-minute EventBridge rule, VAPID key in SSM, IAM scoped to the table and key, CloudWatch log groups with 14-day retention. `make tp` plans cleanly; **it has not been applied.**
+- `infra/terraform/`: DynamoDB table, API Lambda with Function URL, dispatch Lambda on a 15-minute EventBridge rule, VAPID key in SSM, IAM scoped to the table and key, CloudWatch log groups with 14-day retention. **Applied** 2026-10-12; API at `https://7xqk6vcnevbxx32k3ris3sfd5e0tdujd.lambda-url.us-east-1.on.aws`.
+  - Gotcha: since October 2025 a public Function URL needs `lambda:InvokeFunction` (with `lambda:InvokedViaFunctionUrl`) as well as `lambda:InvokeFunctionUrl`, or every request gets 403. That needs AWS provider 6.x for `invoked_via_function_url`. Planned as one extra permission; **apply pending**.
 - `infra/lambda/reminders/`: Node 22 Lambda code (`api.mjs`, `dispatch.mjs`, `store.mjs`, `vapid.mjs`) with unit tests for the pure logic (`npm test`, 16 passing).
+- Flutter side:
+  - `web/push_sw.js` (push + click handling) and `web/push.js` (permission, subscribe, API calls), loaded from `index.html`. The worker is registered at scope `/push/` because Flutter 3.47's own service worker is a stub that unregisters itself and would replace a worker at `/`.
+  - `lib/models/reminder_settings.dart`, `lib/services/reminder_service.dart` (+ `_web`/`_stub` via conditional import), `lib/providers/reminder_provider.dart`. Settings persist under the `reminder_settings` key.
+  - `WorkoutNotifier._completeDay` fires `reportCompleted` once per day, fire-and-forget.
+  - Settings screen: master switch, one row per slot with a checkbox and time picker; install hint on iOS Safari; hidden entirely when `REMINDERS_API_URL` is empty.
+  - `amplify.yml` passes `--dart-define=REMINDERS_API_URL=...`.
+  - Tests: 21 new (model, provider, completion hook, settings UI); 110 total.
 
-## Remaining work (Flutter side)
-1. **Apply the infrastructure** (`make ta` in `infra/terraform/`, Wynand only), and note the `reminders_api_url` output.
-2. **Service worker.** Flutter's generated `flutter_service_worker.js` doesn't handle `push`. Add a small `web/push_sw.js` (or import a script into the generated worker) that shows the notification from the push payload (`title`, `body`, `url`) and opens/focuses the app on click.
-3. **Reminder settings** in `SettingsScreen`: an on/off switch and three time pickers. Persist in `UserProgress` (bump `schemaVersion` to 3 with a migration) or a separate `reminder_settings` key.
-4. **Subscription flow.** On enabling: request `Notification.permission` from the tap, `pushManager.subscribe` with the VAPID key from `GET /vapid`, then `PUT /subscriptions` with the subscription JSON, `Intl.DateTimeFormat().resolvedOptions().timeZone`, and the times. Re-`PUT` on every settings change and on launch (this refreshes the TTL). `DELETE` on disabling. Use `package:web` / `dart:js_interop`; keep it behind an abstract `ReminderService` so the pure Dart tests don't touch JS.
-5. **Completion hook.** In `WorkoutNotifier._completeDay`, after the first completion of the day, `POST /subscriptions/complete` with today's local date. Fire-and-forget; log failures.
-6. **Build-time API URL.** Pass the Function URL as `--dart-define=REMINDERS_API_URL=...` in `amplify.yml`, read with `String.fromEnvironment`. If empty, hide the reminder settings.
-7. **Install guidance.** On iOS Safari outside standalone mode, show "Add to Home Screen to enable reminders" instead of the switch.
-8. Tests: provider tests for settings persistence and the completion hook (mock `ReminderService`); a test that the UI hides when the API URL is empty.
-9. Update `docs/spec.md` and the Outcome section here; set `status: done`.
+## Remaining
+1. Apply the extra Function URL permission (`make ta`), then confirm `curl .../vapid` returns the key.
+2. Merge to `main`, then on the phone: remove and re-add the home-screen app (iOS needs the installed app), enable reminders in Settings, and wait for the next slot. Check `/aws/lambda/dailyquest-reminders-production-dispatch` logs for the `{"sent":...}` summary.
+3. Update the Outcome section here and set `status: done`.
 
 ## Constraints
 - Commits as `wpieters <me@wynandpieters.dev>`.
