@@ -1,6 +1,7 @@
 locals {
   default_tags = {
     Project     = "dailyquest"
+    Client      = "piforge"
     Environment = var.environment
   }
 }
