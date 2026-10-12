@@ -150,12 +150,22 @@ resource "aws_lambda_function_url" "api" {
   }
 }
 
+# Since October 2025 a public Function URL needs both permissions: the URL
+# one, and InvokeFunction restricted to calls that arrive via the URL.
 resource "aws_lambda_permission" "api_url" {
   statement_id           = "AllowPublicFunctionUrl"
   action                 = "lambda:InvokeFunctionUrl"
   function_name          = aws_lambda_function.api.function_name
   principal              = "*"
   function_url_auth_type = "NONE"
+}
+
+resource "aws_lambda_permission" "api_url_invoke" {
+  statement_id             = "AllowPublicFunctionUrlInvoke"
+  action                   = "lambda:InvokeFunction"
+  function_name            = aws_lambda_function.api.function_name
+  principal                = "*"
+  invoked_via_function_url = true
 }
 
 # -----------------------------------------------------
