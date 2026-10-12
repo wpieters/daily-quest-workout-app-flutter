@@ -1,8 +1,8 @@
 ---
-status: in-progress
+status: done
 date: 2026-10-12
 branch: feat/reminders → main
-pr:
+pr: https://github.com/wpieters/daily-quest-workout-app-flutter/pull/2
 adrs: [0012]
 ---
 
@@ -34,11 +34,6 @@ Times are local to the device's timezone. Each can be switched off.
   - `amplify.yml` passes `--dart-define=REMINDERS_API_URL=...`.
   - Tests: 21 new (model, provider, completion hook, settings UI); 110 total.
 
-## Remaining
-1. Apply the extra Function URL permission (`make ta`), then confirm `curl .../vapid` returns the key.
-2. Merge to `main`, then on the phone: remove and re-add the home-screen app (iOS needs the installed app), enable reminders in Settings, and wait for the next slot. Check `/aws/lambda/dailyquest-reminders-production-dispatch` logs for the `{"sent":...}` summary.
-3. Update the Outcome section here and set `status: done`.
-
 ## Constraints
 - Commits as `wpieters <me@wynandpieters.dev>`.
 - Riverpod 3 `Notifier`; no new state-management libraries.
@@ -49,3 +44,14 @@ Times are local to the device's timezone. Each can be switched off.
 ## Open questions
 - Should the evening message include the current streak or level? (The server doesn't know them; the app would have to send them with each `PUT`.)
 - Timezone changes while travelling: the app re-`PUT`s on launch, so the server follows the device after the first open in the new zone. Good enough?
+
+## Outcome
+Shipped on `feat/reminders` (PR #2). Verified end to end on 2026-10-12: the Amplify branch preview subscribed from a phone, an evening slot was set for a minute ahead, and the dispatcher's next 15-minute tick delivered the push.
+
+**Found along the way**
+- Public Function URLs created after October 2025 need `lambda:InvokeFunction` (scoped by `lambda:InvokedViaFunctionUrl`) as well as `lambda:InvokeFunctionUrl`; without it every request is 403. Needed AWS provider 6.x.
+- The Function URL's CORS list must include every origin the app is served from. Branch previews on `amplifyapp.com` are added through `extra_allowed_origins`.
+- Flutter 3.47 removed `--pwa-strategy`, and its generated service worker now unregisters itself. The push worker therefore lives at scope `/push/`.
+- A subscription is per browser and origin, so the preview and production domains hold separate subscriptions; the preview's expires with the 60-day TTL unless switched off.
+
+**Open questions**: unchanged, see below. Neither blocks use.
