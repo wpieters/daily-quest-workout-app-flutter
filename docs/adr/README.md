@@ -15,3 +15,4 @@ These follow the format and conventions in [ADR 0001](0001-record-decisions-and-
 | [0009](0009-dark-system-window-design.md) | Dark-only Solo Leveling system-window design | Accepted |
 | [0010](0010-toolchain-pin.md) | Pin the Flutter toolchain, and match it in Amplify | Accepted |
 | [0011](0011-deploy-main-only.md) | Deploy only `main` through Amplify | Accepted |
+| [0012](0012-web-push-reminders.md) | Reminders via Web Push, with a small AWS backend | Accepted |

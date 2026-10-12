@@ -19,3 +19,4 @@ When the work ships, add an **Outcome** section at the end. It should cover what
 | # | Handoff | Status |
 |---|---|---|
 | [0001](0001-progression-system.md) | Progression system (XP, levels, titles, stats) | done |
+| [0002](0002-reminders.md) | Daily Quest reminders (Web Push + AWS) | in-progress |

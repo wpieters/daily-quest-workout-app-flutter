@@ -210,6 +210,14 @@ Based on consecutive day streak:
 - Responsive design for different screen sizes
 - Native platform integrations (notifications, widgets)
 
+## Reminders
+Three optional daily push notifications, set in Settings with local times (defaults 07:00, 14:00, 20:00):
+- **Morning**: the Daily Quest is active.
+- **Afternoon**: only if the quest isn't complete yet.
+- **Evening**: only if the quest isn't complete; warns of the XP penalty.
+
+Delivered by Web Push from a small AWS backend under `infra/` (DynamoDB, two Lambdas, EventBridge), see [ADR 0012](adr/0012-web-push-reminders.md). The app registers its subscription and times with the API, and reports completion so later reminders are skipped. Tracking never depends on the backend. On iOS the PWA must be installed to the home screen.
+
 ## Deployment & Distribution
 
 ### AWS Amplify Configuration
