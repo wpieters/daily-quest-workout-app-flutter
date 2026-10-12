@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vibration/vibration.dart';
 import '../models/workout_day.dart';
@@ -5,6 +7,7 @@ import '../models/user_progress.dart';
 import '../models/exercise_type.dart';
 import '../progression/progression_engine.dart';
 import '../progression/progression_state.dart';
+import '../services/reminder_service.dart';
 import '../services/storage_service.dart';
 
 final progressionEngineProvider = Provider<ProgressionEngine>((ref) {
@@ -73,6 +76,7 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
   late StorageService _storageService;
   late ProgressionEngine _engine;
   late DateTime Function() _clock;
+  late ReminderService _reminders;
 
   /// Completes once saved data has been loaded and past days settled.
   late Future<void> ready;
@@ -82,6 +86,7 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     _storageService = ref.read(storageServiceProvider);
     _engine = ref.read(progressionEngineProvider);
     _clock = ref.read(clockProvider);
+    _reminders = ref.read(reminderServiceProvider);
 
     // `state` can't be touched until build() returns, so load afterwards.
     ready = Future.microtask(_loadData);
@@ -321,6 +326,14 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     );
 
     await _storageService.saveProgress(newProgress);
+
+    // Lets the reminder backend skip today's remaining nudges. Fire and
+    // forget: tracking never waits on the network (ADR 0012).
+    if (firstCompletion) {
+      unawaited(_reminders
+          .reportCompleted(dateOnly(completedDay.date))
+          .catchError((Object _) {}));
+    }
   }
 
   /// Replaces the history entry for [day]'s date, or appends it.
