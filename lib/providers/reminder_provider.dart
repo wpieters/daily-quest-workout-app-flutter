@@ -113,6 +113,9 @@ class ReminderNotifier extends Notifier<ReminderState> {
 
   Future<void> setEnabled(bool on) => on ? enable() : disable();
 
+  /// Re-reads settings from storage, e.g. after a full data reset.
+  Future<void> reload() => _load();
+
   /// Sets or clears (null) one slot's time, and pushes it to the server when
   /// reminders are on.
   Future<void> setSlot(ReminderSlot slot, ReminderTime? time) async {
