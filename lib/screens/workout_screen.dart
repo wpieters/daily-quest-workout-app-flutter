@@ -7,6 +7,7 @@ import '../widgets/completion_animation.dart';
 import '../widgets/stage_completion_overlay.dart';
 import '../widgets/level_header.dart';
 import '../widgets/level_up_overlay.dart';
+import '../widgets/missed_day_overlay.dart';
 import '../widgets/quest_info_panel.dart';
 import '../widgets/xp_gain_popup.dart';
 import '../models/exercise_type.dart';
@@ -240,13 +241,23 @@ class WorkoutScreen extends ConsumerWidget {
               onComplete: notifier.hideStageAnimation,
             ),
 
-          // Level-up ceremony, after the daily completion animation
+          // Level-up ceremony, after the daily completion animation and
+          // once any missed-day notice has been read
           if (workoutState.pendingLevelUps.isNotEmpty &&
-              !workoutState.showCompletionAnimation)
+              !workoutState.showCompletionAnimation &&
+              workoutState.pendingPenalty == null)
             LevelUpOverlay(
               key: ObjectKey(workoutState.pendingLevelUps.first),
               change: workoutState.pendingLevelUps.first,
               onDismiss: notifier.dismissLevelUp,
+            ),
+
+          // Missed-day penalty, on top of everything: it explains the
+          // state the user is looking at (handoff 0004)
+          if (workoutState.pendingPenalty != null)
+            MissedDayOverlay(
+              penalty: workoutState.pendingPenalty!,
+              onDismiss: notifier.dismissPenalty,
             ),
         ],
       ),

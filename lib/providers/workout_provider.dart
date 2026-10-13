@@ -6,6 +6,7 @@ import 'package:vibration/vibration.dart';
 import '../models/workout_day.dart';
 import '../models/user_progress.dart';
 import '../models/exercise_type.dart';
+import '../models/missed_day_penalty.dart';
 import '../progression/progression_engine.dart';
 import '../progression/progression_state.dart';
 import '../services/reminder_service.dart';
@@ -32,6 +33,9 @@ class WorkoutState {
   /// Level-ups waiting to be shown, oldest first.
   final List<LevelChange> pendingLevelUps;
 
+  /// What the last rollover charged for missed days, until dismissed.
+  final MissedDayPenalty? pendingPenalty;
+
   /// XP from the most recent award; [xpGainId] changes on every award so the
   /// UI can show feedback even when two awards have the same amount.
   final int lastXpGain;
@@ -45,6 +49,7 @@ class WorkoutState {
     this.lastCompletedStage = -1,
     this.lastCompletedExercise,
     this.pendingLevelUps = const [],
+    this.pendingPenalty,
     this.lastXpGain = 0,
     this.xpGainId = 0,
   });
@@ -57,6 +62,8 @@ class WorkoutState {
     int? lastCompletedStage,
     ExerciseType? lastCompletedExercise,
     List<LevelChange>? pendingLevelUps,
+    MissedDayPenalty? pendingPenalty,
+    bool clearPenalty = false,
     int? lastXpGain,
     int? xpGainId,
   }) {
@@ -70,6 +77,9 @@ class WorkoutState {
       lastCompletedExercise:
           lastCompletedExercise ?? this.lastCompletedExercise,
       pendingLevelUps: pendingLevelUps ?? this.pendingLevelUps,
+      pendingPenalty: clearPenalty
+          ? null
+          : (pendingPenalty ?? this.pendingPenalty),
       lastXpGain: lastXpGain ?? this.lastXpGain,
       xpGainId: xpGainId ?? this.xpGainId,
     );
@@ -151,7 +161,28 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
         ? WorkoutDay(date: today, runningEnabled: day.runningEnabled)
         : day;
 
-    state = state.copyWith(progress: progress, currentDay: currentDay);
+    // Summarise what the catch-up charged, for the QUEST FAILED window
+    // (handoff 0004). Only set when a miss was actually processed now.
+    final before = state.progress.progression;
+    final after = result.state;
+    final penalty = result.missedDaysProcessed == 0
+        ? null
+        : MissedDayPenalty(
+            days: result.missedDaysProcessed,
+            xpLost: before.totalXp - after.totalXp,
+            fromLevel: _engine.levelOf(before),
+            toLevel: _engine.levelOf(after),
+            protectionLeft:
+                (_engine.config.levelProtectionDays -
+                        after.consecutiveMissedDays)
+                    .clamp(0, _engine.config.levelProtectionDays),
+          );
+
+    state = state.copyWith(
+      progress: progress,
+      currentDay: currentDay,
+      pendingPenalty: penalty,
+    );
 
     await _storageService.saveProgress(progress);
     await _storageService.saveTodaysWorkout(currentDay);
@@ -339,6 +370,10 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     final index = history.indexWhere((d) => dateOnly(d.date) == date);
     if (index == -1) return [...history, day];
     return [...history]..[index] = day;
+  }
+
+  void dismissPenalty() {
+    state = state.copyWith(clearPenalty: true);
   }
 
   void hideCompletionAnimation() {

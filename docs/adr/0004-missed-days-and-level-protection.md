@@ -15,4 +15,4 @@ The handoff locked a **-150 XP** penalty for each missed day, and a rule that a 
 
 ## Consequences
 - Doing a single exercise to its target protects the whole day. The rule is forgiving on purpose, so a busy day doesn't cost XP.
-- When the user opens the app after a long gap, several levels can be lost at once. There is no on-screen notice for this yet; it only shows on the STATUS screen.
+- When the user opens the app after a long gap, several levels can be lost at once. Since [handoff 0004](../handoffs/0004-missed-day-notice.md) a QUEST FAILED window reports the days missed, the XP lost and the protection or level change, once per rollover; the STATUS screen keeps the running state.

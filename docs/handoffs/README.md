@@ -21,3 +21,4 @@ When the work ships, add an **Outcome** section at the end. It should cover what
 | [0001](0001-progression-system.md) | Progression system (XP, levels, titles, stats) | done |
 | [0002](0002-reminders.md) | Daily Quest reminders (Web Push + AWS) | done |
 | [0003](0003-power-up-sprites.md) | Streak power-up with pixel sprites | done |
+| [0004](0004-missed-day-notice.md) | Missed-day penalty notice (QUEST FAILED window) | in-progress |

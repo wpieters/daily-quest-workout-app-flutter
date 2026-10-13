@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:daily_quest/models/exercise_type.dart';
+import 'package:daily_quest/models/missed_day_penalty.dart';
 import 'package:daily_quest/models/user_progress.dart';
 import 'package:daily_quest/progression/leveling.dart';
 import 'package:daily_quest/progression/progression_state.dart';
@@ -352,6 +353,79 @@ void main() {
       expect(state.progress.history.single.squats, 100);
       expect(state.progress.progression.consecutiveMissedDays, 0);
       expect(state.progress.progression.levelTally.days, 1);
+    });
+
+    test(
+      'a rollover that charges misses queues a QUEST FAILED notice',
+      () async {
+        // Monday push-ups done, next open Friday: 3 misses, held at the floor.
+        seed(activeMonday(), {
+          'date': '2026-10-05T07:00:00.000',
+          'pushups': 100,
+          'runningEnabled': true,
+          'xpEarned': 100,
+        });
+        final (c, n) = await open();
+        expect(
+          c.read(workoutProvider).pendingPenalty,
+          const MissedDayPenalty(
+            days: 3,
+            xpLost: 300, // 300 above the floor, 450 charged, floored
+            fromLevel: 10,
+            toLevel: 10,
+            protectionLeft: 4,
+          ),
+        );
+
+        n.dismissPenalty();
+        expect(c.read(workoutProvider).pendingPenalty, isNull);
+
+        // Re-running the rollover charges nothing, so no new notice.
+        await n.rollover();
+        expect(c.read(workoutProvider).pendingPenalty, isNull);
+      },
+    );
+
+    test('a lost level is reported as such', () async {
+      seed(activeMonday(), {
+        'date': '2026-10-05T07:00:00.000',
+        'pushups': 10,
+        'runningEnabled': true,
+      });
+      now = DateTime(2026, 10, 13, 8);
+      final (c, _) = await open();
+      final penalty = c.read(workoutProvider).pendingPenalty!;
+      expect(penalty.days, 8);
+      expect(penalty.fromLevel, 10);
+      expect(penalty.toLevel, 9);
+      expect(penalty.lostLevel, isTrue);
+      expect(penalty.protectionLeft, 0);
+      expect(penalty.xpLost, greaterThan(300));
+    });
+
+    test(
+      'a fully protected miss at the floor still notifies, with -0 XP',
+      () async {
+        seed(activeMonday().copyWith(totalXp: leveling.levelFloor(10)), {
+          'date': '2026-10-05T07:00:00.000',
+          'runningEnabled': true,
+        });
+        now = DateTime(2026, 10, 6, 8);
+        final (c, _) = await open();
+        final penalty = c.read(workoutProvider).pendingPenalty!;
+        expect(penalty.days, 1);
+        expect(penalty.xpLost, 0);
+        expect(penalty.protectionLeft, 6);
+      },
+    );
+
+    test('a completed day rolls over without a notice', () async {
+      SharedPreferences.setMockInitialValues({});
+      final (c, n) = await open();
+      await tap(n, ExerciseType.squats, 100);
+      now = DateTime(2026, 10, 10, 0, 0, 1);
+      await n.rollover();
+      expect(c.read(workoutProvider).pendingPenalty, isNull);
     });
 
     test('a tap after midnight settles the old day first', () async {
