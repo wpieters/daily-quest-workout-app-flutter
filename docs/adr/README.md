@@ -16,3 +16,4 @@ These follow the format and conventions in [ADR 0001](0001-record-decisions-and-
 | [0010](0010-toolchain-pin.md) | Pin the Flutter toolchain, and match it in Amplify | Accepted |
 | [0011](0011-deploy-main-only.md) | Deploy only `main` through Amplify | Accepted |
 | [0012](0012-web-push-reminders.md) | Reminders via Web Push, with a small AWS backend | Accepted |
+| [0013](0013-pixel-sprites-cc-by.md) | Pixel-art hero and effects from Tiny RPG Battle Kit I (CC BY 4.0) | Proposed |
