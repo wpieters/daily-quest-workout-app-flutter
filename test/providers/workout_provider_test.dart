@@ -231,6 +231,46 @@ void main() {
     });
   });
 
+  group('Sets of ten (long press)', () {
+    setUp(() => SharedPreferences.setMockInitialValues({}));
+
+    test('adds ten, lands on the stage and fires its popup once', () async {
+      final (c, n) = await open();
+      await tap(n, ExerciseType.squats, 3);
+      await n.incrementExercise(ExerciseType.squats, by: 10);
+      final state = c.read(workoutProvider);
+      expect(state.currentDay.squats, 13);
+      expect(state.lastCompletedStage, 1);
+      expect(state.lastCompletedExercise, ExerciseType.squats);
+      expect(state.progress.progression.totalXp, 0,
+          reason: 'XP is awarded on reaching the target, not per set');
+    });
+
+    test('clamps at the target and completes the day', () async {
+      final (c, n) = await open();
+      await n.toggleRunning();
+      await tap(n, ExerciseType.pushups, 100);
+      await tap(n, ExerciseType.situps, 100);
+      await tap(n, ExerciseType.squats, 95);
+      await n.incrementExercise(ExerciseType.squats, by: 10);
+      final state = c.read(workoutProvider);
+      expect(state.currentDay.squats, 100);
+      expect(state.currentDay.isComplete, isTrue);
+      expect(state.showCompletionAnimation, isTrue);
+      expect(state.progress.progression.totalXp, 300);
+    });
+
+    test('removes ten, floored at zero', () async {
+      final (c, n) = await open();
+      await tap(n, ExerciseType.pushups, 23);
+      await n.decrementExercise(ExerciseType.pushups, by: 10);
+      expect(c.read(workoutProvider).currentDay.pushups, 13);
+      await n.decrementExercise(ExerciseType.pushups, by: 10);
+      await n.decrementExercise(ExerciseType.pushups, by: 10);
+      expect(c.read(workoutProvider).currentDay.pushups, 0);
+    });
+  });
+
   group('Missed days', () {
     ProgressionState activeMonday() => ProgressionState.initial().copyWith(
           totalXp: leveling.levelFloor(10) + 300,

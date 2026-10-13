@@ -153,7 +153,9 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     await _storageService.saveTodaysWorkout(currentDay);
   }
 
-  Future<void> incrementExercise(ExerciseType exercise) async {
+  /// Adds [by] reps (or 100 m units), clamped at the target. A long press
+  /// on the panel passes 10, one set at a time.
+  Future<void> incrementExercise(ExerciseType exercise, {int by = 1}) async {
     if (dateOnly(state.currentDay.date).isBefore(_today)) {
       await rollover();
     }
@@ -161,26 +163,11 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     final wasComplete = state.currentDay.isComplete;
     final oldStage = _getStageForExercise(exercise, state.currentDay);
 
-    WorkoutDay newDay;
-    switch (exercise) {
-      case ExerciseType.pushups:
-        if (state.currentDay.pushups >= 100) return;
-        newDay = state.currentDay.copyWith(pushups: state.currentDay.pushups + 1);
-        break;
-      case ExerciseType.situps:
-        if (state.currentDay.situps >= 100) return;
-        newDay = state.currentDay.copyWith(situps: state.currentDay.situps + 1);
-        break;
-      case ExerciseType.squats:
-        if (state.currentDay.squats >= 100) return;
-        newDay = state.currentDay.copyWith(squats: state.currentDay.squats + 1);
-        break;
-      case ExerciseType.running:
-        if (!state.currentDay.runningEnabled) return;
-        if (state.currentDay.running >= 100) return;
-        newDay = state.currentDay.copyWith(running: state.currentDay.running + 1);
-        break;
-    }
+    final day = state.currentDay;
+    if (exercise == ExerciseType.running && !day.runningEnabled) return;
+    final count = _countOf(day, exercise);
+    if (count >= 100) return;
+    final newDay = _withCount(day, exercise, (count + by).clamp(0, 100));
 
     final newStage = _getStageForExercise(exercise, newDay);
     final stageCompleted = newStage > oldStage;
@@ -205,36 +192,36 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
 
   /// Undoes a mis-tap. XP already awarded today is kept, and reaching the
   /// target again does not award it twice.
-  Future<void> decrementExercise(ExerciseType exercise) async {
+  Future<void> decrementExercise(ExerciseType exercise, {int by = 1}) async {
     if (dateOnly(state.currentDay.date).isBefore(_today)) {
       await rollover();
     }
 
     final day = state.currentDay;
-    WorkoutDay newDay;
-    switch (exercise) {
-      case ExerciseType.pushups:
-        if (day.pushups <= 0) return;
-        newDay = day.copyWith(pushups: day.pushups - 1);
-        break;
-      case ExerciseType.situps:
-        if (day.situps <= 0) return;
-        newDay = day.copyWith(situps: day.situps - 1);
-        break;
-      case ExerciseType.squats:
-        if (day.squats <= 0) return;
-        newDay = day.copyWith(squats: day.squats - 1);
-        break;
-      case ExerciseType.running:
-        if (!day.runningEnabled || day.running <= 0) return;
-        newDay = day.copyWith(running: day.running - 1);
-        break;
-    }
+    if (exercise == ExerciseType.running && !day.runningEnabled) return;
+    final count = _countOf(day, exercise);
+    if (count <= 0) return;
+    final newDay = _withCount(day, exercise, (count - by).clamp(0, 100));
 
     state = state.copyWith(currentDay: newDay, lastCompletedStage: -1);
     await _haptic(30);
     await _storageService.saveTodaysWorkout(newDay);
   }
+
+  int _countOf(WorkoutDay day, ExerciseType exercise) => switch (exercise) {
+        ExerciseType.pushups => day.pushups,
+        ExerciseType.situps => day.situps,
+        ExerciseType.squats => day.squats,
+        ExerciseType.running => day.running,
+      };
+
+  WorkoutDay _withCount(WorkoutDay day, ExerciseType exercise, int count) =>
+      switch (exercise) {
+        ExerciseType.pushups => day.copyWith(pushups: count),
+        ExerciseType.situps => day.copyWith(situps: count),
+        ExerciseType.squats => day.copyWith(squats: count),
+        ExerciseType.running => day.copyWith(running: count),
+      };
 
   /// Awards any XP the current day is worth beyond what it already earned.
   /// Awards only ever grow, so resetting or toggling never re-awards or
