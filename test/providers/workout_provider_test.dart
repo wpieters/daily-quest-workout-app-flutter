@@ -217,6 +217,8 @@ void main() {
       await tap(n, ExerciseType.situps, 100);
       await tap(n, ExerciseType.squats, 100);
       expect(c.read(workoutProvider).showCompletionAnimation, isTrue);
+      expect(c.read(workoutProvider).lastCompletedStage, -1,
+          reason: 'the stage-10 popup yields to the daily power-up');
       n.hideCompletionAnimation();
 
       await n.decrementExercise(ExerciseType.squats);

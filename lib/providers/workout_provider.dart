@@ -323,6 +323,9 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
       currentDay: completedDay,
       progress: newProgress,
       showCompletionAnimation: firstCompletion,
+      // The final rep also closes a stage; the daily power-up supersedes
+      // that popup rather than sharing the screen with it.
+      lastCompletedStage: firstCompletion ? -1 : null,
     );
 
     await _storageService.saveProgress(newProgress);

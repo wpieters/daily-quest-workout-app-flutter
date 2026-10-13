@@ -161,7 +161,7 @@ if any, is awarded XP on first load.
 ## Animation Specifications
 
 ### Power-Up Sequences
-On the first completion of the day, a full-screen overlay (about 2.3 s) shows the pixel-art hero (Tiny RPG Battle Kit I, CC BY 4.0, see [ADR 0013](adr/0013-pixel-sprites-cc-by.md)) in its victory pose, scaled in with a bounce, inside an aura coloured by the streak tier. "DAILY QUEST / COMPLETE!" and the tier name fade in below. The aura escalates with consecutive days:
+On the first completion of the day, a full-screen overlay (about 3.5 s; the stage-10 popup for the final rep is skipped in its favour) shows the pixel-art hero (Tiny RPG Battle Kit I, CC BY 4.0, see [ADR 0013](adr/0013-pixel-sprites-cc-by.md)) in its victory pose, scaled in with a bounce, inside an aura coloured by the streak tier. "DAILY QUEST / COMPLETE!" and the tier name fade in below. The aura escalates with consecutive days:
 - **Day 0** (first ever): soft grey glow, no particles
 - **Days 1-7**: blue aura with rising particles
 - **Days 8-30**: Super Saiyan 1: yellow aura, a flame sheet burning behind the hero
