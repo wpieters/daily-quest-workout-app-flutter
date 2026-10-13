@@ -1,5 +1,5 @@
 ---
-status: open
+status: in-progress
 date: 2026-10-13
 branch: feat/power-up-sprites → main
 pr:
@@ -58,3 +58,20 @@ Check the exact used-frame counts against the PNGs before hard-coding them (the 
 - **Which hero?** Fighter is the default (red hair, fists: closest to the One Punch Man theme). The pack also has Healer, Mage and Noble; the sheet layout is identical, so it could later follow the character's title or be a setting.
 - **Tier 3 colour**: `powerRed` is what the theme has, but "electric" reads better in white-blue. Keep red for the aura and draw the arcs in white, or change the theme colour?
 - **Where else to show the hero?** A small idle-loop (motion 1 *wait*) on the Character screen would reuse the same widget for little cost. Not in scope unless cheap.
+
+## Outcome
+Implemented on `feat/power-up-sprites`.
+
+- `lib/sprites/sprite_sheet.dart`: `SpriteSheet`, `SvActorSheet` (RPG Maker MV actor layout, `SvMotion` enum) and `RmmvAnimationSheet`, plus the `Sprites` catalogue with the used frame lists. Pure Dart, unit-tested.
+- `lib/widgets/sprite_animation.dart`: `SpriteAnimation` (Ticker-driven, nearest-neighbour, optional `ColorFilter`, `animate: false` for reduced motion; one-shot effects paint nothing after they finish), `SpriteImages` cache with a test hook, and `hueRotate()`.
+- `lib/widgets/power_up_aura.dart`: the Flutter-drawn glow, particles and tier-3 arcs.
+- `lib/widgets/completion_animation.dart` rewritten around them; same `powerLevel`/`onComplete` API, so `WorkoutScreen` is unchanged. `main()` warms the sprite cache.
+- Attribution in `assets/sprites/LICENSE.md` and the Settings About card. Bundle delta: 92 KB of PNG.
+- Tests: 12 new (sheet maths, frame advance/loop/one-shot/still, overlay layering per tier, reduced motion, completion callback). 123 total.
+
+**Found along the way**
+- The exact used cells differ from the eyeballed counts: Fire uses cells 0,1,3,5–12 (flame body 6–9), Thunder 0,2–9,11, Revive 0–30. Blank cells inside a sequence are the artist's flicker and are played as blanks.
+- Effect cells (192 px) at 3× are 576 px wide, so they sit in an `OverflowBox` over the hero's 288 px box rather than sizing the layout.
+- A one-shot sheet that holds its last frame leaves Thunder's stray sparks on screen; `SpriteAnimation` now ends empty, as RPG Maker does.
+
+**Open questions**: Fighter and `powerRed` with white arcs, as proposed. The idle hero on the Character screen is left for later.

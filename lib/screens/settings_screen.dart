@@ -156,6 +156,15 @@ class SettingsScreen extends ConsumerWidget {
                     color: Colors.grey,
                   ),
                 ),
+                const SizedBox(height: 12),
+                // Required by the sprites' CC BY 4.0 licence (ADR 0013).
+                Text(
+                  'Hero and effect sprites: Tiny RPG - Battle Kit I by '
+                  'Gabriel "tiopalada" Lima, CC BY 4.0 '
+                  '(creativecommons.org/licenses/by/4.0)',
+                  style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           ),

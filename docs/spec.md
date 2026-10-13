@@ -161,11 +161,14 @@ if any, is awarded XP on first load.
 ## Animation Specifications
 
 ### Power-Up Sequences
-Based on consecutive day streak:
-- **Days 1-7**: Basic power-up (blue aura)
-- **Days 8-30**: Super Saiyan 1 (yellow aura) 
-- **Days 31-100**: Super Saiyan 2 (electric effects)
-- **Days 100+**: Ultra Instinct or custom sequence
+On the first completion of the day, a full-screen overlay (about 2.3 s) shows the pixel-art hero (Tiny RPG Battle Kit I, CC BY 4.0, see [ADR 0013](adr/0013-pixel-sprites-cc-by.md)) in its victory pose, scaled in with a bounce, inside an aura coloured by the streak tier. "DAILY QUEST / COMPLETE!" and the tier name fade in below. The aura escalates with consecutive days:
+- **Day 0** (first ever): soft grey glow, no particles
+- **Days 1-7**: blue aura with rising particles
+- **Days 8-30**: Super Saiyan 1: yellow aura, a flame sheet burning behind the hero
+- **Days 31-100**: Super Saiyan 2: red aura, a lightning strike on the hero, then white electric arcs crackling around it
+- **Days 100+**: Ultra Instinct: purple aura with a silver halo, drifting purple sparkles, the lightning kept
+
+Sprites are drawn with nearest-neighbour scaling (4× on phones, 3× under 700 px tall). With reduced motion the hero holds a still frame, the glow is steady, and no effect sheets play; the overlay still dismisses itself.
 
 ### Micro-Animations
 - Button press feedback with scale animation
