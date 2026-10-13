@@ -7,7 +7,7 @@ import 'sprite_animation.dart';
 
 /// Full-screen "DAILY QUEST COMPLETE" overlay: the pixel hero strikes a
 /// victory pose inside an aura that escalates with the streak tier
-/// (handoff 0003, ADR 0013). Calls [onComplete] after about 2.3 s.
+/// (handoff 0003, ADR 0013). Calls [onComplete] after about 3.5 s.
 class CompletionAnimation extends StatefulWidget {
   final int powerLevel;
   final VoidCallback onComplete;
@@ -42,9 +42,9 @@ class _CompletionAnimationState extends State<CompletionAnimation>
     vsync: this,
   );
 
-  /// Text fade in (0–0.7), then the whole overlay fades out (0.7–1).
+  /// Text fade in (0–0.3), hold, then the whole overlay fades out (0.8–1).
   late final AnimationController _text = AnimationController(
-    duration: const Duration(milliseconds: 1500),
+    duration: const Duration(milliseconds: 2500),
     vsync: this,
   );
 
@@ -58,13 +58,13 @@ class _CompletionAnimationState extends State<CompletionAnimation>
   );
   late final Animation<double> _textFade = CurvedAnimation(
     parent: _text,
-    curve: const Interval(0, 0.7, curve: Curves.easeOut),
+    curve: const Interval(0, 0.3, curve: Curves.easeOut),
   );
   late final Animation<double> _overlayFade = Tween(begin: 1.0, end: 0.0)
       .animate(
         CurvedAnimation(
           parent: _text,
-          curve: const Interval(0.7, 1, curve: Curves.easeOut),
+          curve: const Interval(0.8, 1, curve: Curves.easeOut),
         ),
       );
 
@@ -90,7 +90,8 @@ class _CompletionAnimationState extends State<CompletionAnimation>
       _pulse.repeat(reverse: true);
       _clock.forward();
     }
-    await Future.delayed(const Duration(milliseconds: 800));
+    // Let the hero land and the aura build before the text.
+    await Future.delayed(const Duration(milliseconds: 1000));
     if (!mounted) return;
     await _text.forward();
     if (mounted) widget.onComplete();

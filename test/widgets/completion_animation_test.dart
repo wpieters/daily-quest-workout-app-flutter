@@ -57,9 +57,11 @@ void main() {
     );
     expect((aura.painter as PowerUpAura).tier, 1);
 
-    await tester.pump(const Duration(milliseconds: 800));
+    await tester.pump(const Duration(milliseconds: 1000));
     expect(completed, 0);
-    await tester.pump(const Duration(milliseconds: 1600));
+    await tester.pump(const Duration(milliseconds: 2000));
+    expect(completed, 0, reason: 'text is still up');
+    await tester.pump(const Duration(milliseconds: 600));
     expect(completed, 1);
   });
 
@@ -78,7 +80,7 @@ void main() {
         reason: 'tier $tier',
       );
       // Let the overlay finish so the next pump starts clean.
-      await tester.pump(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 4));
     }
   });
 
@@ -92,8 +94,8 @@ void main() {
     expect(sprites.map((s) => s.sheet), [Sprites.fighter]);
     expect(sprites.single.animate, isFalse);
     expect(find.text('SUPER SAIYAN 2!'), findsOneWidget);
-    await tester.pump(const Duration(milliseconds: 800));
-    await tester.pump(const Duration(milliseconds: 1600));
+    await tester.pump(const Duration(milliseconds: 1000));
+    await tester.pump(const Duration(milliseconds: 2600));
     expect(completed, 1);
   });
 }
