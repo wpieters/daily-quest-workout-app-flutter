@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../utils/theme.dart';
 
 /// "+100 XP" that floats up and fades out. Give it a new key per award so

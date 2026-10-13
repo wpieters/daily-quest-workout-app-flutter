@@ -1,6 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/reminder_settings.dart';
 import '../models/workout_day.dart';
 import '../models/user_progress.dart';
@@ -18,7 +20,7 @@ class StorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final progressJson = prefs.getString(_progressKey);
-      
+
       if (progressJson != null) {
         final progressMap = jsonDecode(progressJson) as Map<String, dynamic>;
         return UserProgress.fromJson(progressMap);
@@ -26,7 +28,7 @@ class StorageService {
     } catch (e) {
       // If there's an error loading, return default
     }
-    
+
     return UserProgress.initial();
   }
 
@@ -46,7 +48,7 @@ class StorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final workoutJson = prefs.getString(_todayWorkoutKey);
-      
+
       if (workoutJson != null) {
         final workoutMap = jsonDecode(workoutJson) as Map<String, dynamic>;
         return WorkoutDay.fromJson(workoutMap);
@@ -54,7 +56,7 @@ class StorageService {
     } catch (e) {
       // If there's an error loading, return default
     }
-    
+
     return null;
   }
 
@@ -74,7 +76,8 @@ class StorageService {
       final json = prefs.getString(_reminderSettingsKey);
       if (json != null) {
         return ReminderSettings.fromJson(
-            jsonDecode(json) as Map<String, dynamic>);
+          jsonDecode(json) as Map<String, dynamic>,
+        );
       }
     } catch (e) {
       // Fall through to defaults
@@ -85,7 +88,10 @@ class StorageService {
   Future<void> saveReminderSettings(ReminderSettings settings) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_reminderSettingsKey, jsonEncode(settings.toJson()));
+      await prefs.setString(
+        _reminderSettingsKey,
+        jsonEncode(settings.toJson()),
+      );
     } catch (e) {
       // Handle error silently
     }

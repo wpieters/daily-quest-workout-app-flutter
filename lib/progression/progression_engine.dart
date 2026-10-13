@@ -49,7 +49,7 @@ class ProgressionEngine {
   final Leveling leveling;
 
   ProgressionEngine([this.config = ProgressionConfig.standard])
-      : leveling = Leveling(config);
+    : leveling = Leveling(config);
 
   int levelOf(ProgressionState s) => leveling.levelForXp(s.totalXp);
 
@@ -63,7 +63,10 @@ class ProgressionEngine {
   /// Adds [amount] XP. [today] is the current day's progress so far, counted
   /// provisionally towards the stat-gain and fatigue rules on level-up.
   ProgressionResult awardXp(
-      ProgressionState state, int amount, DaySummary today) {
+    ProgressionState state,
+    int amount,
+    DaySummary today,
+  ) {
     if (amount <= 0) return ProgressionResult(state);
 
     final fromLevel = levelOf(state);
@@ -78,15 +81,22 @@ class ProgressionEngine {
       final gain = config.statGainPerLevel;
       final stats = s.stats;
 
-      final str =
-          _capped(stats.strength, tally.meets(tally.pushups, ratio) ? gain : 0);
-      final vit =
-          _capped(stats.vitality, tally.meets(tally.situps, ratio) ? gain : 0);
-      final agi =
-          _capped(stats.agility, tally.meets(tally.squats, ratio) ? gain : 0);
+      final str = _capped(
+        stats.strength,
+        tally.meets(tally.pushups, ratio) ? gain : 0,
+      );
+      final vit = _capped(
+        stats.vitality,
+        tally.meets(tally.situps, ratio) ? gain : 0,
+      );
+      final agi = _capped(
+        stats.agility,
+        tally.meets(tally.squats, ratio) ? gain : 0,
+      );
 
-      final skillPoints =
-          next > s.highestLevel ? config.skillPointsPerLevel : 0;
+      final skillPoints = next > s.highestLevel
+          ? config.skillPointsPerLevel
+          : 0;
 
       var fatigueGain = 0;
       var fatigueTally = s.fatigueTally;
@@ -114,15 +124,17 @@ class ProgressionEngine {
         levelTally: DayTally.empty,
       );
 
-      changes.add(LevelChange(
-        fromLevel: level,
-        toLevel: next,
-        strengthDelta: str,
-        vitalityDelta: vit,
-        agilityDelta: agi,
-        skillPointsGained: skillPoints,
-        fatigueMaxGained: fatigueGain,
-      ));
+      changes.add(
+        LevelChange(
+          fromLevel: level,
+          toLevel: next,
+          strengthDelta: str,
+          vitalityDelta: vit,
+          agilityDelta: agi,
+          skillPointsGained: skillPoints,
+          fatigueMaxGained: fatigueGain,
+        ),
+      );
     }
 
     return ProgressionResult(s, levelChanges: changes);
@@ -208,8 +220,9 @@ class ProgressionEngine {
     var cursor = dateOnly(lastActive);
     var first = true;
     while (cursor.isBefore(day)) {
-      final summary =
-          first ? (lastActiveDay ?? DaySummary.empty) : DaySummary.empty;
+      final summary = first
+          ? (lastActiveDay ?? DaySummary.empty)
+          : DaySummary.empty;
       final result = finalizeDay(s, summary);
       s = result.state;
       changes.addAll(result.levelChanges);

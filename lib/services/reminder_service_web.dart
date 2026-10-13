@@ -60,7 +60,8 @@ class WebReminderService implements ReminderService {
 
   @override
   Future<void> reportCompleted(DateTime date) async {
-    final ymd = '${date.year.toString().padLeft(4, '0')}-'
+    final ymd =
+        '${date.year.toString().padLeft(4, '0')}-'
         '${date.month.toString().padLeft(2, '0')}-'
         '${date.day.toString().padLeft(2, '0')}';
     await _complete(apiUrl.toJS, ymd.toJS).toDart;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../utils/theme.dart';
 
 /// A panel whose cyan glow pulses (5px -> 30px and back, every 2s).

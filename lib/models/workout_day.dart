@@ -77,18 +77,19 @@ class WorkoutDay {
 
   bool get isComplete {
     const target = 100;
-    final exercisesComplete = pushups >= target && situps >= target && squats >= target;
+    final exercisesComplete =
+        pushups >= target && situps >= target && squats >= target;
     final runningComplete = !runningEnabled || running >= target;
     return exercisesComplete && runningComplete;
   }
 
   DaySummary get summary => DaySummary.fromCounts(
-        pushups: pushups,
-        situps: situps,
-        squats: squats,
-        running: running,
-        runningEnabled: runningEnabled,
-      );
+    pushups: pushups,
+    situps: situps,
+    squats: squats,
+    running: running,
+    runningEnabled: runningEnabled,
+  );
 
   bool get hasActivity => pushups + situps + squats + running > 0;
 

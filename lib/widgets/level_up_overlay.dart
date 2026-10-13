@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../progression/progression_engine.dart';
 import '../utils/theme.dart';
 import 'glow_pulse.dart';
@@ -75,8 +76,10 @@ class _LevelUpOverlayState extends State<LevelUpOverlay>
                     decoration: BoxDecoration(
                       color: AppTheme.systemPanel,
                       borderRadius: BorderRadius.circular(8),
-                      border:
-                          Border.all(color: AppTheme.systemBlue, width: 1.5),
+                      border: Border.all(
+                        color: AppTheme.systemBlue,
+                        width: 1.5,
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

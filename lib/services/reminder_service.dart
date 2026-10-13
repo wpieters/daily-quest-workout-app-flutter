@@ -2,7 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/reminder_settings.dart';
 import 'reminder_service_stub.dart'
-    if (dart.library.js_interop) 'reminder_service_web.dart' as platform;
+    if (dart.library.js_interop) 'reminder_service_web.dart'
+    as platform;
 
 /// Base URL of the reminders API, baked in at build time:
 /// `--dart-define=REMINDERS_API_URL=https://...`. Empty means no backend,
@@ -24,8 +25,10 @@ enum ReminderStatus {
 }
 
 ReminderStatus reminderStatusFrom(String name) =>
-    ReminderStatus.values.firstWhere((s) => s.name == name,
-        orElse: () => ReminderStatus.unsupported);
+    ReminderStatus.values.firstWhere(
+      (s) => s.name == name,
+      orElse: () => ReminderStatus.unsupported,
+    );
 
 /// Talks to the push machinery (service worker, permission, reminders API).
 /// Pure Dart code never touches JS directly, so tests can swap this out.

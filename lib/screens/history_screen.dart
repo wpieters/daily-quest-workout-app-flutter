@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/workout_provider.dart';
 import '../models/workout_day.dart';
 import '../utils/theme.dart';
@@ -24,7 +25,8 @@ class HistoryScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               itemCount: history.length,
               itemBuilder: (context, index) {
-                final workout = history[history.length - 1 - index]; // Reverse order
+                final workout =
+                    history[history.length - 1 - index]; // Reverse order
                 return _buildWorkoutCard(context, workout, index == 0);
               },
             ),
@@ -36,11 +38,7 @@ class HistoryScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.history,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.history, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'No Workout History',
@@ -53,10 +51,7 @@ class HistoryScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             'Complete your first daily quest to see your progress here!',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[500],
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
         ],
@@ -64,19 +59,24 @@ class HistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWorkoutCard(BuildContext context, WorkoutDay workout, bool isToday) {
+  Widget _buildWorkoutCard(
+    BuildContext context,
+    WorkoutDay workout,
+    bool isToday,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: isToday 
+        border: isToday
             ? Border.all(color: AppTheme.primaryBlue, width: 2)
             : null,
         boxShadow: [
           BoxShadow(
-            color: (isToday ? AppTheme.primaryBlue : Colors.black)
-                .withValues(alpha: 0.1),
+            color: (isToday ? AppTheme.primaryBlue : Colors.black).withValues(
+              alpha: 0.1,
+            ),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -125,9 +125,9 @@ class HistoryScreen extends ConsumerWidget {
                 _buildCompletionBadge(workout),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Exercise Progress
             Row(
               children: [
@@ -152,9 +152,9 @@ class HistoryScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             Row(
               children: [
                 Expanded(
@@ -194,17 +194,16 @@ class HistoryScreen extends ConsumerWidget {
           color: Colors.green,
           shape: BoxShape.circle,
         ),
-        child: const Icon(
-          Icons.check,
-          color: Colors.white,
-          size: 20,
-        ),
+        child: const Icon(Icons.check, color: Colors.white, size: 20),
       );
     } else {
-      final totalProgress = (workout.pushups + workout.situps + workout.squats + 
-                           (workout.runningEnabled ? workout.running : 100)) / 
-                          (workout.runningEnabled ? 400 : 300);
-      
+      final totalProgress =
+          (workout.pushups +
+              workout.situps +
+              workout.squats +
+              (workout.runningEnabled ? workout.running : 100)) /
+          (workout.runningEnabled ? 400 : 300);
+
       return Stack(
         alignment: Alignment.center,
         children: [
@@ -222,10 +221,7 @@ class HistoryScreen extends ConsumerWidget {
           ),
           Text(
             '${(totalProgress * 100).round()}%',
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
           ),
         ],
       );
@@ -242,7 +238,7 @@ class HistoryScreen extends ConsumerWidget {
     bool enabled = true,
   }) {
     final progress = enabled ? (count / target).clamp(0.0, 1.0) : 1.0;
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -268,9 +264,9 @@ class HistoryScreen extends ConsumerWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Progress bar
           Container(
             width: double.infinity,
@@ -290,9 +286,9 @@ class HistoryScreen extends ConsumerWidget {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 4),
-          
+
           // Count
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -308,10 +304,7 @@ class HistoryScreen extends ConsumerWidget {
               if (isRunning && enabled)
                 Text(
                   '${(count * 0.1).toStringAsFixed(1)}km',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                 ),
             ],
           ),
@@ -323,7 +316,7 @@ class HistoryScreen extends ConsumerWidget {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date).inDays;
-    
+
     if (difference == 0) {
       return 'Today';
     } else if (difference == 1) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/exercise_type.dart';
 import '../utils/theme.dart';
 import 'quest_info_panel.dart';
@@ -95,8 +96,9 @@ class _ExerciseButtonState extends State<ExerciseButton>
                 boxShadow: active
                     ? [
                         BoxShadow(
-                          color: AppTheme.questPrimary
-                              .withValues(alpha: 0.7 * (1 - t)),
+                          color: AppTheme.questPrimary.withValues(
+                            alpha: 0.7 * (1 - t),
+                          ),
                           spreadRadius: 16 * t,
                         ),
                       ]
@@ -127,8 +129,10 @@ class _ExerciseButtonState extends State<ExerciseButton>
                   children: [
                     Row(
                       children: [
-                        Text(widget.exercise.icon,
-                            style: const TextStyle(fontSize: 22)),
+                        Text(
+                          widget.exercise.icon,
+                          style: const TextStyle(fontSize: 22),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -188,10 +192,10 @@ class _ExerciseButtonState extends State<ExerciseButton>
                       isComplete
                           ? '⚡ QUEST COMPLETE ⚡'
                           : widget.isEnabled
-                              ? (widget.isRunning
-                                  ? 'TAP +100M · HOLD +1KM'
-                                  : 'TAP +1 · HOLD +10')
-                              : 'DISABLED',
+                          ? (widget.isRunning
+                                ? 'TAP +100M · HOLD +1KM'
+                                : 'TAP +1 · HOLD +10')
+                          : 'DISABLED',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: isComplete
@@ -218,19 +222,22 @@ class _ExerciseButtonState extends State<ExerciseButton>
                         // which would swallow the hold; hover still shows it.
                         TooltipTheme(
                           data: const TooltipThemeData(
-                              triggerMode: TooltipTriggerMode.manual),
+                            triggerMode: TooltipTriggerMode.manual,
+                          ),
                           child: IconButton(
                             icon: const Icon(Icons.remove),
                             tooltip: widget.isRunning
                                 ? 'Remove 100m (hold: 1km)'
                                 : 'Remove one rep (hold: ten)',
                             color: AppTheme.questPrimary,
-                            disabledColor:
-                                AppTheme.mutedForeground.withValues(alpha: 0.4),
+                            disabledColor: AppTheme.mutedForeground.withValues(
+                              alpha: 0.4,
+                            ),
                             visualDensity: VisualDensity.compact,
                             onPressed: canDecrement ? widget.onDecrement : null,
-                            onLongPress:
-                                canDecrement ? widget.onDecrementLong : null,
+                            onLongPress: canDecrement
+                                ? widget.onDecrementLong
+                                : null,
                           ),
                         ),
                         const Spacer(),

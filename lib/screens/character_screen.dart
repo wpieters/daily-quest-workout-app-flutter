@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/workout_provider.dart';
 import '../utils/theme.dart';
 
@@ -73,12 +74,21 @@ class CharacterScreen extends ConsumerWidget {
             decoration: AppTheme.panel(borderAlpha: 0.2),
             child: Column(
               children: [
-                _bar('EXP', into, span == 0 ? into : span, AppTheme.powerPurple,
-                    span == 0 ? 'MAX' : null),
+                _bar(
+                  'EXP',
+                  into,
+                  span == 0 ? into : span,
+                  AppTheme.powerPurple,
+                  span == 0 ? 'MAX' : null,
+                ),
                 _bar('HP', hp, hp, AppTheme.questDanger),
                 _bar('MP', mp, mp, AppTheme.questPrimary),
-                _bar('FATIGUE', p.fatigueCurrent, p.fatigueMax,
-                    AppTheme.questSuccess),
+                _bar(
+                  'FATIGUE',
+                  p.fatigueCurrent,
+                  p.fatigueMax,
+                  AppTheme.questSuccess,
+                ),
               ],
             ),
           ),
@@ -167,10 +177,10 @@ class CharacterScreen extends ConsumerWidget {
                   Text(
                     p.consecutiveMissedDays < config.levelProtectionDays
                         ? 'Level protected for '
-                            '${config.levelProtectionDays - p.consecutiveMissedDays} '
-                            'more missed day(s).'
+                              '${config.levelProtectionDays - p.consecutiveMissedDays} '
+                              'more missed day(s).'
                         : 'Level protection lost. Complete an exercise to stop '
-                            'losing XP.',
+                              'losing XP.',
                     style: const TextStyle(
                       color: AppTheme.mutedForeground,
                       fontSize: 12,
@@ -257,10 +267,7 @@ class CharacterScreen extends ConsumerWidget {
         children: [
           Text('$label:', style: _statLabel),
           const Spacer(),
-          Text(
-            '$value',
-            style: AppTheme.mono.copyWith(fontSize: 16),
-          ),
+          Text('$value', style: AppTheme.mono.copyWith(fontSize: 16)),
         ],
       ),
     );

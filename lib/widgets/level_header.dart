@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../progression/progression_engine.dart';
 import '../progression/progression_state.dart';
 import '../utils/theme.dart';
@@ -26,7 +27,8 @@ class LevelHeader extends StatelessWidget {
 
     return Semantics(
       button: onTap != null,
-      label: 'Level $level, ${engine.titleOf(progression)}. '
+      label:
+          'Level $level, ${engine.titleOf(progression)}. '
           '${isMax ? 'Max level' : '$into of $span XP'}',
       child: GestureDetector(
         onTap: onTap,
@@ -76,8 +78,9 @@ class LevelHeader extends StatelessWidget {
                     value: isMax ? 1 : into / span,
                     minHeight: 8,
                     backgroundColor: Colors.white12,
-                    valueColor:
-                        const AlwaysStoppedAnimation(AppTheme.systemBlue),
+                    valueColor: const AlwaysStoppedAnimation(
+                      AppTheme.systemBlue,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 6),

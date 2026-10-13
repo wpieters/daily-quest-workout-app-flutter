@@ -21,8 +21,11 @@ void main() {
     test('defaults are off with 07:00, 14:00 and 20:00', () {
       const d = ReminderSettings.defaults;
       expect(d.enabled, isFalse);
-      expect(d.apiTimes,
-          {'morning': '07:00', 'afternoon': '14:00', 'evening': '20:00'});
+      expect(d.apiTimes, {
+        'morning': '07:00',
+        'afternoon': '14:00',
+        'evening': '20:00',
+      });
     });
 
     test('round-trips through JSON, including a slot that is off', () {
@@ -55,8 +58,10 @@ void main() {
         s = s.withSlot(slot, null);
       }
       expect(s.anySlotOn, isFalse);
-      expect(s.withSlot(ReminderSlot.morning, const ReminderTime(6, 0)).anySlotOn,
-          isTrue);
+      expect(
+        s.withSlot(ReminderSlot.morning, const ReminderTime(6, 0)).anySlotOn,
+        isTrue,
+      );
     });
   });
 }

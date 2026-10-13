@@ -16,8 +16,8 @@ class ReminderTime {
   final int minute;
 
   const ReminderTime(this.hour, this.minute)
-      : assert(hour >= 0 && hour < 24),
-        assert(minute >= 0 && minute < 60);
+    : assert(hour >= 0 && hour < 24),
+      assert(minute >= 0 && minute < 60);
 
   /// "HH:MM", the format the reminders API expects.
   String get hhmm =>
@@ -78,8 +78,8 @@ class ReminderSettings {
 
   /// The `times` object the API takes: `{"morning": "07:00", ...}`.
   Map<String, String?> get apiTimes => {
-        for (final slot in ReminderSlot.values) slot.name: times[slot]?.hhmm,
-      };
+    for (final slot in ReminderSlot.values) slot.name: times[slot]?.hhmm,
+  };
 
   Map<String, dynamic> toJson() => {'enabled': enabled, 'times': apiTimes};
 

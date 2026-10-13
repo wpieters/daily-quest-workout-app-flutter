@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/workout_provider.dart';
 
 final dailyResetServiceProvider = Provider<DailyResetService>((ref) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/exercise_type.dart';
 
 class StageCompletionOverlay extends StatefulWidget {
@@ -27,32 +28,27 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
   @override
   void initState() {
     super.initState();
-    
+
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
-    ));
+    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _fadeController,
+        curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
+      ),
+    );
 
     _startAnimation();
   }
@@ -87,7 +83,7 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
   @override
   Widget build(BuildContext context) {
     final exerciseColor = _getExerciseColor();
-    
+
     return Positioned.fill(
       child: AnimatedBuilder(
         animation: Listenable.merge([_scaleAnimation, _fadeAnimation]),
@@ -144,9 +140,9 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         // Stage text
                         Text(
                           'STAGE ${widget.stage}',
@@ -157,9 +153,9 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
                             letterSpacing: 2,
                           ),
                         ),
-                        
+
                         const SizedBox(height: 8),
-                        
+
                         const Text(
                           'COMPLETE!',
                           style: TextStyle(
@@ -169,9 +165,9 @@ class _StageCompletionOverlayState extends State<StageCompletionOverlay>
                             letterSpacing: 1,
                           ),
                         ),
-                        
+
                         const SizedBox(height: 16),
-                        
+
                         // Exercise name
                         Text(
                           widget.exercise.displayName,

@@ -17,9 +17,9 @@ void main() {
   late DateTime now;
 
   Future<(ProviderContainer, WorkoutNotifier)> open() async {
-    final container = ProviderContainer(overrides: [
-      clockProvider.overrideWithValue(() => now),
-    ]);
+    final container = ProviderContainer(
+      overrides: [clockProvider.overrideWithValue(() => now)],
+    );
     final notifier = container.read(workoutProvider.notifier);
     await notifier.ready;
     return (container, notifier);
@@ -194,21 +194,23 @@ void main() {
       expect(c.read(workoutProvider).currentDay.running, 3);
     });
 
-    test('undoing a rep keeps XP and re-completing does not re-award',
-        () async {
-      final (c, n) = await open();
-      await tap(n, ExerciseType.pushups, 100);
-      await n.decrementExercise(ExerciseType.pushups);
+    test(
+      'undoing a rep keeps XP and re-completing does not re-award',
+      () async {
+        final (c, n) = await open();
+        await tap(n, ExerciseType.pushups, 100);
+        await n.decrementExercise(ExerciseType.pushups);
 
-      var state = c.read(workoutProvider);
-      expect(state.currentDay.pushups, 99);
-      expect(state.progress.progression.totalXp, 100);
+        var state = c.read(workoutProvider);
+        expect(state.currentDay.pushups, 99);
+        expect(state.progress.progression.totalXp, 100);
 
-      await n.incrementExercise(ExerciseType.pushups);
-      state = c.read(workoutProvider);
-      expect(state.progress.progression.totalXp, 100);
-      expect(state.xpGainId, 1);
-    });
+        await n.incrementExercise(ExerciseType.pushups);
+        state = c.read(workoutProvider);
+        expect(state.progress.progression.totalXp, 100);
+        expect(state.xpGainId, 1);
+      },
+    );
 
     test('re-completing the day does not replay the celebration', () async {
       final (c, n) = await open();
@@ -217,8 +219,11 @@ void main() {
       await tap(n, ExerciseType.situps, 100);
       await tap(n, ExerciseType.squats, 100);
       expect(c.read(workoutProvider).showCompletionAnimation, isTrue);
-      expect(c.read(workoutProvider).lastCompletedStage, -1,
-          reason: 'the stage-10 popup yields to the daily power-up');
+      expect(
+        c.read(workoutProvider).lastCompletedStage,
+        -1,
+        reason: 'the stage-10 popup yields to the daily power-up',
+      );
       n.hideCompletionAnimation();
 
       await n.decrementExercise(ExerciseType.squats);
@@ -242,8 +247,11 @@ void main() {
       expect(state.currentDay.squats, 13);
       expect(state.lastCompletedStage, 1);
       expect(state.lastCompletedExercise, ExerciseType.squats);
-      expect(state.progress.progression.totalXp, 0,
-          reason: 'XP is awarded on reaching the target, not per set');
+      expect(
+        state.progress.progression.totalXp,
+        0,
+        reason: 'XP is awarded on reaching the target, not per set',
+      );
     });
 
     test('clamps at the target and completes the day', () async {
@@ -273,15 +281,16 @@ void main() {
 
   group('Missed days', () {
     ProgressionState activeMonday() => ProgressionState.initial().copyWith(
-          totalXp: leveling.levelFloor(10) + 300,
-          highestLevel: 10,
-          lastActiveDate: DateTime(2026, 10, 5),
-        );
+      totalXp: leveling.levelFloor(10) + 300,
+      highestLevel: 10,
+      lastActiveDate: DateTime(2026, 10, 5),
+    );
 
     void seed(ProgressionState p, Map<String, dynamic> day) {
       SharedPreferences.setMockInitialValues({
         'user_progress': jsonEncode(
-            UserProgress.initial().copyWith(progression: p).toJson()),
+          UserProgress.initial().copyWith(progression: p).toJson(),
+        ),
         'today_workout': jsonEncode(day),
       });
     }

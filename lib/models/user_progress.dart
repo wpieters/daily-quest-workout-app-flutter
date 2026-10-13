@@ -55,9 +55,11 @@ class UserProgress {
       currentStreak: json['currentStreak'] ?? 0,
       longestStreak: json['longestStreak'] ?? 0,
       totalWorkouts: json['totalWorkouts'] ?? 0,
-      history: (json['history'] as List<dynamic>?)
-          ?.map((day) => WorkoutDay.fromJson(day))
-          .toList() ?? [],
+      history:
+          (json['history'] as List<dynamic>?)
+              ?.map((day) => WorkoutDay.fromJson(day))
+              .toList() ??
+          [],
       progression: ProgressionState.fromJson(json['progression']),
     );
   }

@@ -18,10 +18,12 @@ void main() {
   late FakeReminderService fake;
 
   Future<(ProviderContainer, ReminderNotifier)> open() async {
-    final container = ProviderContainer(overrides: [
-      reminderServiceProvider.overrideWithValue(fake),
-      clockProvider.overrideWithValue(() => DateTime(2026, 10, 12, 9)),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        reminderServiceProvider.overrideWithValue(fake),
+        clockProvider.overrideWithValue(() => DateTime(2026, 10, 12, 9)),
+      ],
+    );
     final notifier = container.read(reminderProvider.notifier);
     await notifier.ready;
     return (container, notifier);
@@ -54,18 +56,20 @@ void main() {
   });
 
   group('Enable and disable', () {
-    test('enabling asks the service with the saved times and persists',
-        () async {
-      final (c, n) = await open();
-      await n.enable();
+    test(
+      'enabling asks the service with the saved times and persists',
+      () async {
+        final (c, n) = await open();
+        await n.enable();
 
-      final s = c.read(reminderProvider);
-      expect(s.status, ReminderStatus.on);
-      expect(s.settings.enabled, isTrue);
-      expect(fake.calls, ['status', 'enable']);
-      expect(fake.synced.single.apiTimes['morning'], '07:00');
-      expect((await stored())!['enabled'], isTrue);
-    });
+        final s = c.read(reminderProvider);
+        expect(s.status, ReminderStatus.on);
+        expect(s.settings.enabled, isTrue);
+        expect(fake.calls, ['status', 'enable']);
+        expect(fake.synced.single.apiTimes['morning'], '07:00');
+        expect((await stored())!['enabled'], isTrue);
+      },
+    );
 
     test('a refused permission leaves reminders off with an error', () async {
       fake.grantsOn = false;
@@ -119,21 +123,27 @@ void main() {
   });
 
   group('Launch', () {
-    test('re-syncs an enabled subscription so the server copy stays fresh',
-        () async {
-      SharedPreferences.setMockInitialValues({
-        'reminder_settings': jsonEncode({
-          'enabled': true,
-          'times': {'morning': '06:30', 'afternoon': null, 'evening': '20:00'},
-        }),
-      });
-      fake.current = ReminderStatus.on;
-      final (c, _) = await open();
+    test(
+      're-syncs an enabled subscription so the server copy stays fresh',
+      () async {
+        SharedPreferences.setMockInitialValues({
+          'reminder_settings': jsonEncode({
+            'enabled': true,
+            'times': {
+              'morning': '06:30',
+              'afternoon': null,
+              'evening': '20:00',
+            },
+          }),
+        });
+        fake.current = ReminderStatus.on;
+        final (c, _) = await open();
 
-      expect(fake.calls, ['status', 'sync']);
-      expect(fake.synced.single.apiTimes['morning'], '06:30');
-      expect(c.read(reminderProvider).settings.enabled, isTrue);
-    });
+        expect(fake.calls, ['status', 'sync']);
+        expect(fake.synced.single.apiTimes['morning'], '06:30');
+        expect(c.read(reminderProvider).settings.enabled, isTrue);
+      },
+    );
 
     test('turns itself off when the browser lost the subscription', () async {
       SharedPreferences.setMockInitialValues({
@@ -150,10 +160,12 @@ void main() {
 
   group('Completion hook', () {
     Future<WorkoutNotifier> openWorkout() async {
-      final container = ProviderContainer(overrides: [
-        reminderServiceProvider.overrideWithValue(fake),
-        clockProvider.overrideWithValue(() => DateTime(2026, 10, 12, 9)),
-      ]);
+      final container = ProviderContainer(
+        overrides: [
+          reminderServiceProvider.overrideWithValue(fake),
+          clockProvider.overrideWithValue(() => DateTime(2026, 10, 12, 9)),
+        ],
+      );
       final n = container.read(workoutProvider.notifier);
       await n.ready;
       return n;
@@ -165,7 +177,7 @@ void main() {
       for (final e in [
         ExerciseType.pushups,
         ExerciseType.situps,
-        ExerciseType.squats
+        ExerciseType.squats,
       ]) {
         for (var i = 0; i < 100; i++) {
           await n.incrementExercise(e);

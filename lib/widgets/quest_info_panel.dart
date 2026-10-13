@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/workout_day.dart';
 import '../utils/theme.dart';
 import 'glow_pulse.dart';
@@ -129,16 +130,18 @@ class QuestInfoPanel extends StatelessWidget {
     final color = !enabled
         ? AppTheme.mutedForeground
         : done
-            ? AppTheme.questSuccess
-            : AppTheme.foreground;
+        ? AppTheme.questSuccess
+        : AppTheme.foreground;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           Text('-$name', style: TextStyle(color: color, fontSize: 14)),
           const Spacer(),
-          Text('[$value]',
-              style: AppTheme.mono.copyWith(color: color, fontSize: 14)),
+          Text(
+            '[$value]',
+            style: AppTheme.mono.copyWith(color: color, fontSize: 14),
+          ),
         ],
       ),
     );

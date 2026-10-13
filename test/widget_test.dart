@@ -35,8 +35,9 @@ void main() {
   group('Running button', () {
     testWidgets('is non-interactive when running is disabled', (tester) async {
       var taps = 0;
-      await tester
-          .pumpWidget(_runningButton(isEnabled: false, onTap: () => taps++));
+      await tester.pumpWidget(
+        _runningButton(isEnabled: false, onTap: () => taps++),
+      );
 
       await tester.tap(find.byType(InkWell).first);
       await tester.pumpAndSettle();
@@ -49,23 +50,28 @@ void main() {
     testWidgets('is greyed out when running is disabled', (tester) async {
       await tester.pumpWidget(_runningButton(isEnabled: false, onTap: () {}));
 
-      final opacity = tester.widget<Opacity>(find
-          .ancestor(
-            of: find.byType(InkWell).first,
-            matching: find.byType(Opacity),
-          )
-          .first);
+      final opacity = tester.widget<Opacity>(
+        find
+            .ancestor(
+              of: find.byType(InkWell).first,
+              matching: find.byType(Opacity),
+            )
+            .first,
+      );
       expect(opacity.opacity, 0.4);
       expect(find.text('DISABLED'), findsOneWidget);
     });
 
     testWidgets('minus is disabled when running is disabled', (tester) async {
       var decrements = 0;
-      await tester.pumpWidget(_runningButton(
+      await tester.pumpWidget(
+        _runningButton(
           isEnabled: false,
           count: 5,
           onTap: () {},
-          onDecrement: () => decrements++));
+          onDecrement: () => decrements++,
+        ),
+      );
 
       await tester.tap(find.byIcon(Icons.remove));
       expect(decrements, 0);
@@ -73,8 +79,9 @@ void main() {
 
     testWidgets('responds to taps when running is enabled', (tester) async {
       var taps = 0;
-      await tester
-          .pumpWidget(_runningButton(isEnabled: true, onTap: () => taps++));
+      await tester.pumpWidget(
+        _runningButton(isEnabled: true, onTap: () => taps++),
+      );
 
       await tester.tap(find.byType(InkWell).first);
       await tester.pumpAndSettle();
@@ -86,11 +93,14 @@ void main() {
   group('Minus button', () {
     testWidgets('removes one without adding one', (tester) async {
       var taps = 0, decrements = 0;
-      await tester.pumpWidget(_runningButton(
+      await tester.pumpWidget(
+        _runningButton(
           isEnabled: true,
           count: 5,
           onTap: () => taps++,
-          onDecrement: () => decrements++));
+          onDecrement: () => decrements++,
+        ),
+      );
 
       await tester.tap(find.byIcon(Icons.remove));
       await tester.pumpAndSettle();
@@ -101,8 +111,13 @@ void main() {
 
     testWidgets('is disabled at zero', (tester) async {
       var decrements = 0;
-      await tester.pumpWidget(_runningButton(
-          isEnabled: true, onTap: () {}, onDecrement: () => decrements++));
+      await tester.pumpWidget(
+        _runningButton(
+          isEnabled: true,
+          onTap: () {},
+          onDecrement: () => decrements++,
+        ),
+      );
 
       await tester.tap(find.byIcon(Icons.remove));
       expect(decrements, 0);
@@ -138,11 +153,13 @@ void main() {
       );
     }
 
-    testWidgets('holding the panel adds a set and floats "+10"',
-        (tester) async {
+    testWidgets('holding the panel adds a set and floats "+10"', (
+      tester,
+    ) async {
       var sets = 0;
       await tester.pumpWidget(
-          button(onLongPress: () => sets++, onDecrementLong: () {}));
+        button(onLongPress: () => sets++, onDecrementLong: () {}),
+      );
       expect(find.text('TAP +1 \u00b7 HOLD +10'), findsOneWidget);
 
       await tester.longPress(find.byType(InkWell).first);
@@ -154,22 +171,26 @@ void main() {
     });
 
     testWidgets('running shows the hold hint in km', (tester) async {
-      await tester.pumpWidget(button(
-          onLongPress: () {}, onDecrementLong: () {}, isRunning: true));
+      await tester.pumpWidget(
+        button(onLongPress: () {}, onDecrementLong: () {}, isRunning: true),
+      );
       expect(find.text('TAP +100M \u00b7 HOLD +1KM'), findsOneWidget);
     });
 
-    testWidgets('holding minus removes a set, tapping still removes one',
-        (tester) async {
+    testWidgets('holding minus removes a set, tapping still removes one', (
+      tester,
+    ) async {
       var sets = 0;
       await tester.pumpWidget(
-          button(onLongPress: () {}, onDecrementLong: () => sets++));
+        button(onLongPress: () {}, onDecrementLong: () => sets++),
+      );
       await tester.longPress(find.byIcon(Icons.remove));
       await tester.pumpAndSettle();
       expect(sets, 1);
       // The hold is disabled at zero, like the tap.
-      await tester.pumpWidget(button(
-          onLongPress: () {}, onDecrementLong: () => sets++, count: 0));
+      await tester.pumpWidget(
+        button(onLongPress: () {}, onDecrementLong: () => sets++, count: 0),
+      );
       await tester.longPress(find.byIcon(Icons.remove));
       await tester.pumpAndSettle();
       expect(sets, 1);

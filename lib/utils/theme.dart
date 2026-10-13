@@ -50,19 +50,20 @@ class AppTheme {
   );
 
   static ThemeData get theme {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: questPrimary,
-      brightness: Brightness.dark,
-    ).copyWith(
-      primary: questPrimary,
-      onPrimary: background,
-      secondary: secondary,
-      onSecondary: foreground,
-      surface: card,
-      onSurface: foreground,
-      outline: border,
-      error: questDanger,
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: questPrimary,
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: questPrimary,
+          onPrimary: background,
+          secondary: secondary,
+          onSecondary: foreground,
+          surface: card,
+          onSurface: foreground,
+          outline: border,
+          error: questDanger,
+        );
 
     return ThemeData(
       useMaterial3: true,
@@ -134,12 +135,18 @@ class AppTheme {
 
   static Color getPowerLevelColor(int level) {
     switch (level) {
-      case 0: return mutedForeground;
-      case 1: return primaryBlue;
-      case 2: return powerYellow;
-      case 3: return powerRed;
-      case 4: return powerPurple;
-      default: return primaryBlue;
+      case 0:
+        return mutedForeground;
+      case 1:
+        return primaryBlue;
+      case 2:
+        return powerYellow;
+      case 3:
+        return powerRed;
+      case 4:
+        return powerPurple;
+      default:
+        return primaryBlue;
     }
   }
 

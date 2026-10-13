@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vibration/vibration.dart';
+
 import '../models/workout_day.dart';
 import '../models/user_progress.dart';
 import '../models/exercise_type.dart';
@@ -16,8 +17,9 @@ final progressionEngineProvider = Provider<ProgressionEngine>((ref) {
 
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
-final workoutProvider =
-    NotifierProvider<WorkoutNotifier, WorkoutState>(WorkoutNotifier.new);
+final workoutProvider = NotifierProvider<WorkoutNotifier, WorkoutState>(
+  WorkoutNotifier.new,
+);
 
 class WorkoutState {
   final WorkoutDay currentDay;
@@ -62,9 +64,11 @@ class WorkoutState {
       currentDay: currentDay ?? this.currentDay,
       progress: progress ?? this.progress,
       isLoading: isLoading ?? this.isLoading,
-      showCompletionAnimation: showCompletionAnimation ?? this.showCompletionAnimation,
+      showCompletionAnimation:
+          showCompletionAnimation ?? this.showCompletionAnimation,
       lastCompletedStage: lastCompletedStage ?? this.lastCompletedStage,
-      lastCompletedExercise: lastCompletedExercise ?? this.lastCompletedExercise,
+      lastCompletedExercise:
+          lastCompletedExercise ?? this.lastCompletedExercise,
       pendingLevelUps: pendingLevelUps ?? this.pendingLevelUps,
       lastXpGain: lastXpGain ?? this.lastXpGain,
       xpGainId: xpGainId ?? this.xpGainId,
@@ -125,8 +129,8 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     final day = state.currentDay;
     final lastActive = state.progress.progression.lastActiveDate;
 
-    final dayIsLastActive = lastActive != null &&
-        dateOnly(day.date) == dateOnly(lastActive);
+    final dayIsLastActive =
+        lastActive != null && dateOnly(day.date) == dateOnly(lastActive);
     final result = _engine.catchUp(
       state.progress.progression,
       today,
@@ -209,11 +213,11 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
   }
 
   int _countOf(WorkoutDay day, ExerciseType exercise) => switch (exercise) {
-        ExerciseType.pushups => day.pushups,
-        ExerciseType.situps => day.situps,
-        ExerciseType.squats => day.squats,
-        ExerciseType.running => day.running,
-      };
+    ExerciseType.pushups => day.pushups,
+    ExerciseType.situps => day.situps,
+    ExerciseType.squats => day.squats,
+    ExerciseType.running => day.running,
+  };
 
   WorkoutDay _withCount(WorkoutDay day, ExerciseType exercise, int count) =>
       switch (exercise) {
@@ -282,8 +286,9 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     // after undoing a rep.
     final firstCompletion = !state.currentDay.completed;
     final completedDay = state.currentDay.copyWith(completed: true);
-    final alreadyCounted = state.progress.history.any((d) =>
-        d.completed && dateOnly(d.date) == dateOnly(completedDay.date));
+    final alreadyCounted = state.progress.history.any(
+      (d) => d.completed && dateOnly(d.date) == dateOnly(completedDay.date),
+    );
     final newHistory = _upsertDay(state.progress.history, completedDay);
 
     // Calculate new streak
@@ -320,9 +325,11 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     // Lets the reminder backend skip today's remaining nudges. Fire and
     // forget: tracking never waits on the network (ADR 0012).
     if (firstCompletion) {
-      unawaited(_reminders
-          .reportCompleted(dateOnly(completedDay.date))
-          .catchError((Object _) {}));
+      unawaited(
+        _reminders
+            .reportCompleted(dateOnly(completedDay.date))
+            .catchError((Object _) {}),
+      );
     }
   }
 
@@ -339,10 +346,7 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
   }
 
   void hideStageAnimation() {
-    state = state.copyWith(
-      lastCompletedStage: -1,
-      lastCompletedExercise: null,
-    );
+    state = state.copyWith(lastCompletedStage: -1, lastCompletedExercise: null);
   }
 
   void dismissLevelUp() {

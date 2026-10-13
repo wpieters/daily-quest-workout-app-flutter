@@ -5,10 +5,18 @@ import 'package:daily_quest/progression/progression_config.dart';
 import 'package:daily_quest/progression/progression_engine.dart';
 import 'package:daily_quest/progression/progression_state.dart';
 
-const fullDay =
-    DaySummary(pushups: true, situps: true, squats: true, running: true);
+const fullDay = DaySummary(
+  pushups: true,
+  situps: true,
+  squats: true,
+  running: true,
+);
 const noRunDay = DaySummary(
-    pushups: true, situps: true, squats: true, runningEnabled: false);
+  pushups: true,
+  situps: true,
+  squats: true,
+  runningEnabled: false,
+);
 
 void main() {
   final engine = ProgressionEngine();
@@ -64,7 +72,8 @@ void main() {
 
     test('curve constants are configurable', () {
       final flat = Leveling(
-          const ProgressionConfig(curveLinear: 0, curvePower: 0, maxLevel: 10));
+        const ProgressionConfig(curveLinear: 0, curvePower: 0, maxLevel: 10),
+      );
       expect(flat.xpToNextLevel(5), 100);
       expect(flat.levelFloor(10), 900);
     });
@@ -101,16 +110,21 @@ void main() {
     });
 
     test('title drops with level', () {
-      final s =
-          ProgressionState.initial().copyWith(totalXp: leveling.levelFloor(20));
+      final s = ProgressionState.initial().copyWith(
+        totalXp: leveling.levelFloor(20),
+      );
       expect(engine.titleOf(s), 'E-Rank Hunter');
-      expect(engine.titleOf(s.copyWith(totalXp: leveling.levelFloor(20) - 1)),
-          'Fledgling Warrior');
+      expect(
+        engine.titleOf(s.copyWith(totalXp: leveling.levelFloor(20) - 1)),
+        'Fledgling Warrior',
+      );
     });
 
     test('LevelChange reports a newly unlocked title only on crossing', () {
-      expect(const LevelChange(fromLevel: 9, toLevel: 10).newTitle,
-          'Fledgling Warrior');
+      expect(
+        const LevelChange(fromLevel: 9, toLevel: 10).newTitle,
+        'Fledgling Warrior',
+      );
       expect(const LevelChange(fromLevel: 10, toLevel: 11).newTitle, isNull);
     });
   });
@@ -134,21 +148,23 @@ void main() {
       expect(fullDay.earnsBonus, isTrue);
       expect(noRunDay.earnsBonus, isFalse);
       const ranButDisabled = DaySummary(
-          pushups: true,
-          situps: true,
-          squats: true,
-          running: true,
-          runningEnabled: false);
+        pushups: true,
+        situps: true,
+        squats: true,
+        running: true,
+        runningEnabled: false,
+      );
       expect(ranButDisabled.earnsBonus, isFalse);
     });
 
     test('fromCounts ignores running when disabled', () {
       final day = DaySummary.fromCounts(
-          pushups: 100,
-          situps: 100,
-          squats: 100,
-          running: 100,
-          runningEnabled: false);
+        pushups: 100,
+        situps: 100,
+        squats: 100,
+        running: 100,
+        runningEnabled: false,
+      );
       expect(day.running, isFalse);
       expect(engine.dayXp(day), 300);
     });
@@ -202,7 +218,9 @@ void main() {
     test('protected penalties are not banked', () {
       // Lots of XP into the level: misses 1-6 eat into it, clamped at floor.
       final s = missDays(
-          atFloorOf(10).copyWith(totalXp: leveling.levelFloor(10) + 100), 7);
+        atFloorOf(10).copyWith(totalXp: leveling.levelFloor(10) + 100),
+        7,
+      );
       expect(s.totalXp, leveling.levelFloor(10) - 150);
     });
 
@@ -238,8 +256,11 @@ void main() {
 
     test('+2 to each stat whose exercise was done on >=50% of level days', () {
       final s = engine
-          .awardXp(ProgressionState.initial(), 121,
-              const DaySummary(pushups: true, situps: true))
+          .awardXp(
+            ProgressionState.initial(),
+            121,
+            const DaySummary(pushups: true, situps: true),
+          )
           .state;
       expect(s.stats.strength, 12);
       expect(s.stats.vitality, 12);
@@ -276,12 +297,14 @@ void main() {
 
     test('stats never exceed the cap', () {
       final s = ProgressionState.initial().copyWith(
-          stats: const CharacterStats(
-              strength: 254,
-              vitality: 255,
-              agility: 10,
-              intelligence: 10,
-              perception: 10));
+        stats: const CharacterStats(
+          strength: 254,
+          vitality: 255,
+          agility: 10,
+          intelligence: 10,
+          perception: 10,
+        ),
+      );
       final result = engine.awardXp(s, 121, fullDay);
       expect(result.state.stats.strength, 255);
       expect(result.state.stats.vitality, 255);
@@ -293,11 +316,12 @@ void main() {
         totalXp: leveling.levelFloor(10),
         consecutiveMissedDays: 6,
         stats: const CharacterStats(
-            strength: 30,
-            vitality: 12,
-            agility: 10,
-            intelligence: 10,
-            perception: 10),
+          strength: 30,
+          vitality: 12,
+          agility: 10,
+          intelligence: 10,
+          perception: 10,
+        ),
       );
       final result = engine.finalizeDay(s, DaySummary.empty);
       expect(engine.levelOf(result.state), 9);
@@ -314,17 +338,19 @@ void main() {
       // Low levels are cheaper than 150 XP? No: L1->2 is 121, so a 150 XP
       // penalty from the floor of level 3 can only cost one level. Use a
       // config with a tiny curve to cross two levels at once.
-      final tiny = ProgressionEngine(const ProgressionConfig(
-          curveBase: 50, curveLinear: 0, curvePower: 0));
+      final tiny = ProgressionEngine(
+        const ProgressionConfig(curveBase: 50, curveLinear: 0, curvePower: 0),
+      );
       final s = ProgressionState.initial().copyWith(
         totalXp: tiny.leveling.levelFloor(5),
         consecutiveMissedDays: 6,
         stats: const CharacterStats(
-            strength: 50,
-            vitality: 50,
-            agility: 50,
-            intelligence: 10,
-            perception: 10),
+          strength: 50,
+          vitality: 50,
+          agility: 50,
+          intelligence: 10,
+          perception: 10,
+        ),
       );
       final result = tiny.finalizeDay(s, DaySummary.empty);
       expect(tiny.levelOf(result.state), 2); // 200 - 150 = 50 => level 2
@@ -371,12 +397,16 @@ void main() {
     final monday = DateTime(2026, 10, 5);
 
     ProgressionState activeOn(DateTime d, int level) =>
-        ProgressionState.initial()
-            .copyWith(totalXp: leveling.levelFloor(level), lastActiveDate: d);
+        ProgressionState.initial().copyWith(
+          totalXp: leveling.levelFloor(level),
+          lastActiveDate: d,
+        );
 
     test('first run just records today', () {
       final result = engine.catchUp(
-          ProgressionState.initial(), monday.add(const Duration(hours: 9)));
+        ProgressionState.initial(),
+        monday.add(const Duration(hours: 9)),
+      );
       expect(result.state.lastActiveDate, monday);
       expect(result.missedDaysProcessed, 0);
     });
@@ -389,28 +419,39 @@ void main() {
 
     test('settles the last active day using its record', () {
       final result = engine.catchUp(
-          activeOn(monday, 10), monday.add(const Duration(days: 1)),
-          lastActiveDay: fullDay);
+        activeOn(monday, 10),
+        monday.add(const Duration(days: 1)),
+        lastActiveDay: fullDay,
+      );
       expect(result.missedDaysProcessed, 0);
       expect(result.state.levelTally.days, 1);
     });
 
     test('skipped days after the last active day count as misses', () {
-      final s =
-          activeOn(monday, 10).copyWith(totalXp: leveling.levelFloor(10) + 300);
+      final s = activeOn(
+        monday,
+        10,
+      ).copyWith(totalXp: leveling.levelFloor(10) + 300);
       // Active Monday (did pushups), opens again Friday: Tue-Thu missed.
-      final result = engine.catchUp(s, DateTime(2026, 10, 9),
-          lastActiveDay: const DaySummary(pushups: true));
+      final result = engine.catchUp(
+        s,
+        DateTime(2026, 10, 9),
+        lastActiveDay: const DaySummary(pushups: true),
+      );
       expect(result.missedDaysProcessed, 3);
       expect(result.state.consecutiveMissedDays, 3);
       expect(
-          result.state.totalXp, leveling.levelFloor(10)); // 300 - 450, clamped
+        result.state.totalXp,
+        leveling.levelFloor(10),
+      ); // 300 - 450, clamped
       expect(result.state.lastActiveDate, DateTime(2026, 10, 9));
     });
 
     test('a long absence drops levels from the 7th miss on', () {
       final result = engine.catchUp(
-          activeOn(monday, 10), monday.add(const Duration(days: 10)));
+        activeOn(monday, 10),
+        monday.add(const Duration(days: 10)),
+      );
       // Monday itself had no record, so it is a miss too: 10 misses.
       expect(result.missedDaysProcessed, 10);
       expect(engine.levelOf(result.state), lessThan(10));
@@ -421,25 +462,34 @@ void main() {
     test('penalties are applied exactly once', () {
       final friday = DateTime(2026, 10, 9, 8);
       final first = engine.catchUp(activeOn(monday, 10), friday);
-      final again =
-          engine.catchUp(first.state, friday.add(const Duration(hours: 6)));
+      final again = engine.catchUp(
+        first.state,
+        friday.add(const Duration(hours: 6)),
+      );
       expect(again.missedDaysProcessed, 0);
       expect(again.state.totalXp, first.state.totalXp);
       expect(
-          again.state.consecutiveMissedDays, first.state.consecutiveMissedDays);
+        again.state.consecutiveMissedDays,
+        first.state.consecutiveMissedDays,
+      );
     });
 
     test('handles month and DST boundaries by calendar day', () {
       final result = engine.catchUp(
-          activeOn(DateTime(2026, 3, 28), 10), DateTime(2026, 4, 2));
+        activeOn(DateTime(2026, 3, 28), 10),
+        DateTime(2026, 4, 2),
+      );
       expect(result.missedDaysProcessed, 5);
     });
   });
 
   group('Serialization', () {
     test('round-trips through JSON', () {
-      final s = simulate(ProgressionState.initial(), fullDay, 12)
-          .copyWith(lastActiveDate: DateTime(2026, 10, 10));
+      final s = simulate(
+        ProgressionState.initial(),
+        fullDay,
+        12,
+      ).copyWith(lastActiveDate: DateTime(2026, 10, 10));
       final restored = ProgressionState.fromJson(s.toJson());
       expect(restored.toJson(), s.toJson());
     });

@@ -30,7 +30,7 @@ class Leveling {
   final List<int> _levelFloors; // index L-1 => total XP needed to reach level L
 
   Leveling([this.config = ProgressionConfig.standard])
-      : _levelFloors = _buildFloors(config);
+    : _levelFloors = _buildFloors(config);
 
   static List<int> _buildFloors(ProgressionConfig c) {
     final floors = <int>[0];

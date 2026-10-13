@@ -4,8 +4,9 @@ import '../models/reminder_settings.dart';
 import '../services/reminder_service.dart';
 import '../services/storage_service.dart';
 
-final reminderProvider =
-    NotifierProvider<ReminderNotifier, ReminderState>(ReminderNotifier.new);
+final reminderProvider = NotifierProvider<ReminderNotifier, ReminderState>(
+  ReminderNotifier.new,
+);
 
 class ReminderState {
   final ReminderSettings settings;

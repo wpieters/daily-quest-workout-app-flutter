@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'screens/workout_screen.dart';
 import 'utils/theme.dart';
 import 'services/daily_reset_service.dart';
@@ -14,7 +15,7 @@ void main() {
 
 class AppInitializer extends ConsumerWidget {
   final Widget child;
-  
+
   const AppInitializer({super.key, required this.child});
 
   @override

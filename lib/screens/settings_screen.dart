@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/reminder_settings.dart';
 import '../providers/reminder_provider.dart';
 import '../providers/workout_provider.dart';
@@ -25,104 +26,87 @@ class SettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           // Progress Section
-          _buildSection(
-            context,
-            'Progress',
-            [
-              _buildInfoTile(
-                'Current Streak',
-                '${workoutState.progress.currentStreak} days',
-                AppTheme.getPowerLevelColor(workoutState.progress.powerLevelTier),
-              ),
-              _buildInfoTile(
-                'Longest Streak',
-                '${workoutState.progress.longestStreak} days',
-                Colors.orange,
-              ),
-              _buildInfoTile(
-                'Total Workouts',
-                '${workoutState.progress.totalWorkouts}',
-                Colors.blue,
-              ),
-              _buildInfoTile(
-                'Power Level',
-                workoutState.progress.powerLevel,
-                AppTheme.getPowerLevelColor(workoutState.progress.powerLevelTier),
-              ),
-            ],
-          ),
-          
+          _buildSection(context, 'Progress', [
+            _buildInfoTile(
+              'Current Streak',
+              '${workoutState.progress.currentStreak} days',
+              AppTheme.getPowerLevelColor(workoutState.progress.powerLevelTier),
+            ),
+            _buildInfoTile(
+              'Longest Streak',
+              '${workoutState.progress.longestStreak} days',
+              Colors.orange,
+            ),
+            _buildInfoTile(
+              'Total Workouts',
+              '${workoutState.progress.totalWorkouts}',
+              Colors.blue,
+            ),
+            _buildInfoTile(
+              'Power Level',
+              workoutState.progress.powerLevel,
+              AppTheme.getPowerLevelColor(workoutState.progress.powerLevelTier),
+            ),
+          ]),
+
           const SizedBox(height: 24),
-          
+
           // Workout Settings
-          _buildSection(
-            context,
-            'Workout Settings',
-            [
-              SwitchListTile(
-                title: const Text('Include Running'),
-                subtitle: const Text('Toggle running requirement for daily completion'),
-                value: workoutState.currentDay.runningEnabled,
-                onChanged: (_) => ref.read(workoutProvider.notifier).toggleRunning(),
-                activeThumbColor: AppTheme.primaryBlue,
+          _buildSection(context, 'Workout Settings', [
+            SwitchListTile(
+              title: const Text('Include Running'),
+              subtitle: const Text(
+                'Toggle running requirement for daily completion',
               ),
-            ],
-          ),
-          
+              value: workoutState.currentDay.runningEnabled,
+              onChanged: (_) =>
+                  ref.read(workoutProvider.notifier).toggleRunning(),
+              activeThumbColor: AppTheme.primaryBlue,
+            ),
+          ]),
+
           const SizedBox(height: 24),
 
           // Reminders (hidden when no backend is configured, ADR 0012)
           if (!ref.watch(reminderProvider).hidden) ...[
-            _buildSection(
-              context,
-              'Reminders',
-              [const _ReminderSettings()],
-            ),
+            _buildSection(context, 'Reminders', [const _ReminderSettings()]),
             const SizedBox(height: 24),
           ],
 
           // System Info
-          _buildSection(
-            context,
-            'System',
-            [
-              _buildInfoTile(
-                'Time Until Reset',
-                _formatDuration(resetService.timeUntilReset),
-                Colors.purple,
-              ),
-              _buildInfoTile(
-                'Today\'s Date',
-                '${workoutState.currentDay.date.day}/${workoutState.currentDay.date.month}/${workoutState.currentDay.date.year}',
-                Colors.grey,
-              ),
-            ],
-          ),
-          
+          _buildSection(context, 'System', [
+            _buildInfoTile(
+              'Time Until Reset',
+              _formatDuration(resetService.timeUntilReset),
+              Colors.purple,
+            ),
+            _buildInfoTile(
+              'Today\'s Date',
+              '${workoutState.currentDay.date.day}/${workoutState.currentDay.date.month}/${workoutState.currentDay.date.year}',
+              Colors.grey,
+            ),
+          ]),
+
           const SizedBox(height: 24),
-          
+
           // Actions
-          _buildSection(
-            context,
-            'Actions',
-            [
-              ListTile(
-                leading: const Icon(Icons.refresh, color: Colors.orange),
-                title: const Text('Reset Today\'s Progress'),
-                subtitle: const Text('Clear today\'s workout counters'),
-                onTap: () => _showResetDialog(context, ref, false),
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete_forever, color: Colors.red),
-                title: const Text('Reset All Data'),
-                subtitle: const Text('Clear all progress and start fresh'),
-                onTap: () => _showResetDialog(context, ref, true),
-              ),
-            ],
-          ),
-          
+          _buildSection(context, 'Actions', [
+            ListTile(
+              leading: const Icon(Icons.refresh, color: Colors.orange),
+              title: const Text('Reset Today\'s Progress'),
+              subtitle: const Text('Clear today\'s workout counters'),
+              onTap: () => _showResetDialog(context, ref, false),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_forever, color: Colors.red),
+              title: const Text('Reset All Data'),
+              subtitle: const Text('Clear all progress and start fresh'),
+              onTap: () => _showResetDialog(context, ref, true),
+            ),
+          ]),
+
           const SizedBox(height: 32),
-          
+
           // App Info
           Container(
             padding: const EdgeInsets.all(16),
@@ -134,27 +118,18 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 const Text(
                   'DailyQuest',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Workout Tracker inspired by One Punch Man and Solo Leveling',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   'Version 1.0.0',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 const SizedBox(height: 12),
                 // Required by the sprites' CC BY 4.0 licence (ADR 0013).
@@ -173,7 +148,11 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, List<Widget> children) {
+  Widget _buildSection(
+    BuildContext context,
+    String title,
+    List<Widget> children,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -219,19 +198,12 @@ class SettingsScreen extends ConsumerWidget {
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
-          Icons.info_outline,
-          color: color,
-          size: 20,
-        ),
+        child: Icon(Icons.info_outline, color: color, size: 20),
       ),
       title: Text(title),
       trailing: Text(
         value,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold, color: color),
       ),
     );
   }
@@ -306,13 +278,15 @@ class _ReminderSettings extends ConsumerWidget {
     final blocker = switch (state.status) {
       ReminderStatus.needsInstall =>
         'Add DailyQuest to your Home Screen to enable reminders.',
-      ReminderStatus.denied =>
-        'Notifications are blocked for this site. Allow them in your browser settings.',
+      ReminderStatus.denied => 'Notifications are blocked for this site. Allow them in your browser settings.',
       _ => null,
     };
     if (blocker != null) {
       return ListTile(
-        leading: const Icon(Icons.notifications_off, color: AppTheme.questWarning),
+        leading: const Icon(
+          Icons.notifications_off,
+          color: AppTheme.questWarning,
+        ),
         title: const Text('Daily reminders'),
         subtitle: Text(blocker),
       );
@@ -323,8 +297,9 @@ class _ReminderSettings extends ConsumerWidget {
       children: [
         SwitchListTile(
           title: const Text('Daily reminders'),
-          subtitle: Text(state.error ??
-              'Push notifications while the quest is still open'),
+          subtitle: Text(
+            state.error ?? 'Push notifications while the quest is still open',
+          ),
           value: settings.enabled,
           onChanged: state.busy ? null : notifier.setEnabled,
           activeThumbColor: AppTheme.primaryBlue,
@@ -357,8 +332,12 @@ class _ReminderSettings extends ConsumerWidget {
     );
   }
 
-  Future<void> _pickTime(BuildContext context, ReminderNotifier notifier,
-      ReminderSlot slot, ReminderTime current) async {
+  Future<void> _pickTime(
+    BuildContext context,
+    ReminderNotifier notifier,
+    ReminderSlot slot,
+    ReminderTime current,
+  ) async {
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay(hour: current.hour, minute: current.minute),

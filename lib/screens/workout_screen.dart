@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/workout_provider.dart';
 import '../widgets/exercise_button.dart';
 import '../widgets/completion_animation.dart';
@@ -25,9 +26,7 @@ class WorkoutScreen extends ConsumerWidget {
     final day = workoutState.currentDay;
 
     if (workoutState.isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     ExerciseButton button(
@@ -72,7 +71,8 @@ class WorkoutScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 border: Border.all(
                   color: AppTheme.getPowerLevelColor(
-                      workoutState.progress.powerLevelTier),
+                    workoutState.progress.powerLevelTier,
+                  ),
                 ),
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -80,7 +80,8 @@ class WorkoutScreen extends ConsumerWidget {
                 workoutState.progress.powerLevel.toUpperCase(),
                 style: TextStyle(
                   color: AppTheme.getPowerLevelColor(
-                      workoutState.progress.powerLevelTier),
+                    workoutState.progress.powerLevelTier,
+                  ),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
@@ -158,15 +159,32 @@ class WorkoutScreen extends ConsumerWidget {
                   crossAxisSpacing: 12,
                   childAspectRatio: 0.85,
                   children: [
-                    button(ExerciseType.pushups, day.pushups,
-                        day.pushupsProgress, day.pushupsStage),
-                    button(ExerciseType.situps, day.situps,
-                        day.situpsProgress, day.situpsStage),
-                    button(ExerciseType.squats, day.squats,
-                        day.squatsProgress, day.squatsStage),
-                    button(ExerciseType.running, day.running,
-                        day.runningProgress, day.runningStage,
-                        isRunning: true, isEnabled: day.runningEnabled),
+                    button(
+                      ExerciseType.pushups,
+                      day.pushups,
+                      day.pushupsProgress,
+                      day.pushupsStage,
+                    ),
+                    button(
+                      ExerciseType.situps,
+                      day.situps,
+                      day.situpsProgress,
+                      day.situpsStage,
+                    ),
+                    button(
+                      ExerciseType.squats,
+                      day.squats,
+                      day.squatsProgress,
+                      day.squatsStage,
+                    ),
+                    button(
+                      ExerciseType.running,
+                      day.running,
+                      day.runningProgress,
+                      day.runningStage,
+                      isRunning: true,
+                      isEnabled: day.runningEnabled,
+                    ),
                   ],
                 ),
 

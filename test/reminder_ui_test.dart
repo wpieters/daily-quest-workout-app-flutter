@@ -21,14 +21,17 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(ProviderScope(
-      overrides: [reminderServiceProvider.overrideWithValue(fake)],
-      child: const MaterialApp(home: SettingsScreen()),
-    ));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [reminderServiceProvider.overrideWithValue(fake)],
+        child: const MaterialApp(home: SettingsScreen()),
+      ),
+    );
     await tester.pump(const Duration(milliseconds: 100));
 
     return ProviderScope.containerOf(
-        tester.element(find.byType(SettingsScreen)));
+      tester.element(find.byType(SettingsScreen)),
+    );
   }
 
   /// The settings page starts the midnight timer; cancel it before the tree
@@ -41,8 +44,9 @@ void main() {
     fake = FakeReminderService();
   });
 
-  testWidgets('hides the section when reminders are unavailable',
-      (tester) async {
+  testWidgets('hides the section when reminders are unavailable', (
+    tester,
+  ) async {
     fake.available = false;
     final container = await pumpSettings(tester);
 
@@ -51,8 +55,9 @@ void main() {
     finish(container);
   });
 
-  testWidgets('shows the switch and three slots; toggling enables',
-      (tester) async {
+  testWidgets('shows the switch and three slots; toggling enables', (
+    tester,
+  ) async {
     final container = await pumpSettings(tester);
 
     expect(find.text('Reminders'), findsOneWidget);
@@ -69,8 +74,9 @@ void main() {
     finish(container);
   });
 
-  testWidgets('explains the home-screen requirement on iOS Safari',
-      (tester) async {
+  testWidgets('explains the home-screen requirement on iOS Safari', (
+    tester,
+  ) async {
     fake.current = ReminderStatus.needsInstall;
     final container = await pumpSettings(tester);
 
@@ -87,8 +93,10 @@ void main() {
 
     expect(find.text('14:00'), findsNothing);
     expect(find.text('off'), findsOneWidget);
-    expect(container.read(reminderProvider).settings.apiTimes['afternoon'],
-        isNull);
+    expect(
+      container.read(reminderProvider).settings.apiTimes['afternoon'],
+      isNull,
+    );
     finish(container);
   });
 }

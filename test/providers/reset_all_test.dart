@@ -19,10 +19,12 @@ void main() {
       'reminder_settings': jsonEncode({'enabled': false, 'times': {}}),
     });
     final fake = FakeReminderService();
-    final container = ProviderContainer(overrides: [
-      reminderServiceProvider.overrideWithValue(fake),
-      clockProvider.overrideWithValue(() => DateTime(2026, 10, 12, 9)),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        reminderServiceProvider.overrideWithValue(fake),
+        clockProvider.overrideWithValue(() => DateTime(2026, 10, 12, 9)),
+      ],
+    );
     final workout = container.read(workoutProvider.notifier);
     await workout.ready;
     final reminders = container.read(reminderProvider.notifier);
@@ -37,8 +39,10 @@ void main() {
     expect(prefs.getString('user_progress'), isNotNull);
     expect(prefs.getString('today_workout'), isNotNull);
     expect(jsonDecode(prefs.getString('reminder_settings')!)['enabled'], true);
-    expect(container.read(workoutProvider).progress.progression.totalXp,
-        greaterThan(0));
+    expect(
+      container.read(workoutProvider).progress.progression.totalXp,
+      greaterThan(0),
+    );
 
     await reminders.disable();
     await workout.resetAll();

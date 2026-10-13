@@ -65,22 +65,22 @@ class DayTally {
   static const empty = DayTally();
 
   DayTally add(DaySummary day) => DayTally(
-        days: days + 1,
-        pushups: pushups + (day.pushups ? 1 : 0),
-        situps: situps + (day.situps ? 1 : 0),
-        squats: squats + (day.squats ? 1 : 0),
-        running: running + (day.running ? 1 : 0),
-      );
+    days: days + 1,
+    pushups: pushups + (day.pushups ? 1 : 0),
+    situps: situps + (day.situps ? 1 : 0),
+    squats: squats + (day.squats ? 1 : 0),
+    running: running + (day.running ? 1 : 0),
+  );
 
   bool meets(int count, double ratio) => days > 0 && count / days >= ratio;
 
   Map<String, dynamic> toJson() => {
-        'days': days,
-        'pushups': pushups,
-        'situps': situps,
-        'squats': squats,
-        'running': running,
-      };
+    'days': days,
+    'pushups': pushups,
+    'situps': situps,
+    'squats': squats,
+    'running': running,
+  };
 
   factory DayTally.fromJson(Map<String, dynamic>? json) {
     if (json == null) return empty;
@@ -110,12 +110,12 @@ class CharacterStats {
   });
 
   factory CharacterStats.starting(ProgressionConfig config) => CharacterStats(
-        strength: config.startingStat,
-        vitality: config.startingStat,
-        agility: config.startingStat,
-        intelligence: config.startingStat,
-        perception: config.startingStat,
-      );
+    strength: config.startingStat,
+    vitality: config.startingStat,
+    agility: config.startingStat,
+    intelligence: config.startingStat,
+    perception: config.startingStat,
+  );
 
   int hp(ProgressionConfig config) => vitality * config.hpPerVitality;
   int mp(ProgressionConfig config) => intelligence * config.mpPerIntelligence;
@@ -130,15 +130,17 @@ class CharacterStats {
       );
 
   Map<String, dynamic> toJson() => {
-        'strength': strength,
-        'vitality': vitality,
-        'agility': agility,
-        'intelligence': intelligence,
-        'perception': perception,
-      };
+    'strength': strength,
+    'vitality': vitality,
+    'agility': agility,
+    'intelligence': intelligence,
+    'perception': perception,
+  };
 
   factory CharacterStats.fromJson(
-      Map<String, dynamic>? json, ProgressionConfig config) {
+    Map<String, dynamic>? json,
+    ProgressionConfig config,
+  ) {
     final start = config.startingStat;
     return CharacterStats(
       strength: json?['strength'] ?? start,
@@ -188,21 +190,21 @@ class ProgressionState {
     required this.fatigueMilestoneLevel,
   });
 
-  factory ProgressionState.initial(
-          [ProgressionConfig config = ProgressionConfig.standard]) =>
-      ProgressionState(
-        totalXp: 0,
-        skillPoints: 0,
-        stats: CharacterStats.starting(config),
-        fatigueCurrent: config.startingFatigue,
-        fatigueMax: config.startingFatigue,
-        consecutiveMissedDays: 0,
-        lastActiveDate: null,
-        levelTally: DayTally.empty,
-        fatigueTally: DayTally.empty,
-        highestLevel: 1,
-        fatigueMilestoneLevel: 0,
-      );
+  factory ProgressionState.initial([
+    ProgressionConfig config = ProgressionConfig.standard,
+  ]) => ProgressionState(
+    totalXp: 0,
+    skillPoints: 0,
+    stats: CharacterStats.starting(config),
+    fatigueCurrent: config.startingFatigue,
+    fatigueMax: config.startingFatigue,
+    consecutiveMissedDays: 0,
+    lastActiveDate: null,
+    levelTally: DayTally.empty,
+    fatigueTally: DayTally.empty,
+    highestLevel: 1,
+    fatigueMilestoneLevel: 0,
+  );
 
   ProgressionState copyWith({
     int? totalXp,
@@ -235,21 +237,23 @@ class ProgressionState {
   }
 
   Map<String, dynamic> toJson() => {
-        'totalXp': totalXp,
-        'skillPoints': skillPoints,
-        'stats': stats.toJson(),
-        'fatigueCurrent': fatigueCurrent,
-        'fatigueMax': fatigueMax,
-        'consecutiveMissedDays': consecutiveMissedDays,
-        'lastActiveDate': lastActiveDate?.toIso8601String(),
-        'levelTally': levelTally.toJson(),
-        'fatigueTally': fatigueTally.toJson(),
-        'highestLevel': highestLevel,
-        'fatigueMilestoneLevel': fatigueMilestoneLevel,
-      };
+    'totalXp': totalXp,
+    'skillPoints': skillPoints,
+    'stats': stats.toJson(),
+    'fatigueCurrent': fatigueCurrent,
+    'fatigueMax': fatigueMax,
+    'consecutiveMissedDays': consecutiveMissedDays,
+    'lastActiveDate': lastActiveDate?.toIso8601String(),
+    'levelTally': levelTally.toJson(),
+    'fatigueTally': fatigueTally.toJson(),
+    'highestLevel': highestLevel,
+    'fatigueMilestoneLevel': fatigueMilestoneLevel,
+  };
 
-  factory ProgressionState.fromJson(Map<String, dynamic>? json,
-      [ProgressionConfig config = ProgressionConfig.standard]) {
+  factory ProgressionState.fromJson(
+    Map<String, dynamic>? json, [
+    ProgressionConfig config = ProgressionConfig.standard,
+  ]) {
     if (json == null) return ProgressionState.initial(config);
     final lastActive = json['lastActiveDate'] as String?;
     return ProgressionState(
