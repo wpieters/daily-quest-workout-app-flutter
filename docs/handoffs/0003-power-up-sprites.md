@@ -1,8 +1,8 @@
 ---
-status: in-progress
+status: done
 date: 2026-10-13
 branch: feat/power-up-sprites → main
-pr:
+pr: https://github.com/wpieters/daily-quest-workout-app-flutter/pull/4
 adrs: [0013]
 ---
 
@@ -60,7 +60,7 @@ Check the exact used-frame counts against the PNGs before hard-coding them (the 
 - **Where else to show the hero?** A small idle-loop (motion 1 *wait*) on the Character screen would reuse the same widget for little cost. Not in scope unless cheap.
 
 ## Outcome
-Implemented on `feat/power-up-sprites`.
+Shipped on `feat/power-up-sprites` (PR #4), merged 2026-10-13. Also in the PR: the stage-10 popup yields to the daily power-up, the overlay runs 3.5 s, and holding a panel adds a set of ten.
 
 - `lib/sprites/sprite_sheet.dart`: `SpriteSheet`, `SvActorSheet` (RPG Maker MV actor layout, `SvMotion` enum) and `RmmvAnimationSheet`, plus the `Sprites` catalogue with the used frame lists. Pure Dart, unit-tested.
 - `lib/widgets/sprite_animation.dart`: `SpriteAnimation` (Ticker-driven, nearest-neighbour, optional `ColorFilter`, `animate: false` for reduced motion; one-shot effects paint nothing after they finish), `SpriteImages` cache with a test hook, and `hueRotate()`.
