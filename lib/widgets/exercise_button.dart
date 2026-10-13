@@ -3,8 +3,9 @@ import '../models/exercise_type.dart';
 import '../utils/theme.dart';
 import 'quest_info_panel.dart';
 
-/// A quest panel for one exercise. Tapping the panel adds a rep (or 100m);
-/// the minus button undoes a mis-tap.
+/// A quest panel for one exercise. Tapping the panel adds a rep (or 100m),
+/// holding it adds a set of ten; the minus button undoes a mis-tap, and
+/// holding that removes ten.
 class ExerciseButton extends StatefulWidget {
   final ExerciseType exercise;
   final int count;
@@ -14,7 +15,9 @@ class ExerciseButton extends StatefulWidget {
   final bool isRunning;
   final bool isEnabled;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final VoidCallback? onDecrement;
+  final VoidCallback? onDecrementLong;
 
   const ExerciseButton({
     super.key,
@@ -24,7 +27,9 @@ class ExerciseButton extends StatefulWidget {
     required this.progress,
     required this.stage,
     required this.onTap,
+    this.onLongPress,
     this.onDecrement,
+    this.onDecrementLong,
     this.isRunning = false,
     this.isEnabled = true,
   });
@@ -47,9 +52,19 @@ class _ExerciseButtonState extends State<ExerciseButton>
     super.dispose();
   }
 
+  bool _set = false;
+
+  // setState so the cached panel subtree picks up the "+10" label.
   void _handleTap() {
+    setState(() => _set = false);
     _controller.forward(from: 0);
     widget.onTap();
+  }
+
+  void _handleLongPress() {
+    setState(() => _set = true);
+    _controller.forward(from: 0);
+    widget.onLongPress!();
   }
 
   String _format(int units) => widget.isRunning ? formatKm(units) : '$units';
@@ -102,6 +117,9 @@ class _ExerciseButtonState extends State<ExerciseButton>
               borderRadius: BorderRadius.circular(8),
               splashColor: AppTheme.questPrimary.withValues(alpha: 0.2),
               onTap: canTap ? _handleTap : null,
+              onLongPress: canTap && widget.onLongPress != null
+                  ? _handleLongPress
+                  : null,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
                 child: Column(
@@ -122,25 +140,57 @@ class _ExerciseButtonState extends State<ExerciseButton>
                       ],
                     ),
                     const Spacer(),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        '[${_format(widget.count)} / '
-                        '${widget.isRunning ? '10KM' : widget.target}]',
-                        style: AppTheme.mono.copyWith(
-                          fontSize: 20,
-                          color: isComplete
-                              ? AppTheme.questSuccess
-                              : AppTheme.foreground,
+                    Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '[${_format(widget.count)} / '
+                            '${widget.isRunning ? '10KM' : widget.target}]',
+                            style: AppTheme.mono.copyWith(
+                              fontSize: 20,
+                              color: isComplete
+                                  ? AppTheme.questSuccess
+                                  : AppTheme.foreground,
+                            ),
+                          ),
                         ),
-                      ),
+                        // "+10" floats up and fades after a long press.
+                        if (_set)
+                          AnimatedBuilder(
+                            animation: _controller,
+                            builder: (context, _) {
+                              final t = _controller.value;
+                              if (!_controller.isAnimating) {
+                                return const SizedBox.shrink();
+                              }
+                              return Transform.translate(
+                                offset: Offset(0, -16 - 20 * t),
+                                child: Opacity(
+                                  opacity: 1 - t,
+                                  child: Text(
+                                    widget.isRunning ? '+1KM' : '+10',
+                                    style: AppTheme.mono.copyWith(
+                                      fontSize: 16,
+                                      color: AppTheme.questPrimary,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
                       isComplete
                           ? '⚡ QUEST COMPLETE ⚡'
                           : widget.isEnabled
-                              ? 'TAP TO ADD ${widget.isRunning ? '100M' : '1'}'
+                              ? (widget.isRunning
+                                  ? 'TAP +100M · HOLD +1KM'
+                                  : 'TAP +1 · HOLD +10')
                               : 'DISABLED',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -164,15 +214,24 @@ class _ExerciseButtonState extends State<ExerciseButton>
                     ),
                     Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove),
-                          tooltip:
-                              'Remove ${widget.isRunning ? '100m' : 'one rep'}',
-                          color: AppTheme.questPrimary,
-                          disabledColor:
-                              AppTheme.mutedForeground.withValues(alpha: 0.4),
-                          visualDensity: VisualDensity.compact,
-                          onPressed: canDecrement ? widget.onDecrement : null,
+                        // The tooltip's default trigger is a long press,
+                        // which would swallow the hold; hover still shows it.
+                        TooltipTheme(
+                          data: const TooltipThemeData(
+                              triggerMode: TooltipTriggerMode.manual),
+                          child: IconButton(
+                            icon: const Icon(Icons.remove),
+                            tooltip: widget.isRunning
+                                ? 'Remove 100m (hold: 1km)'
+                                : 'Remove one rep (hold: ten)',
+                            color: AppTheme.questPrimary,
+                            disabledColor:
+                                AppTheme.mutedForeground.withValues(alpha: 0.4),
+                            visualDensity: VisualDensity.compact,
+                            onPressed: canDecrement ? widget.onDecrement : null,
+                            onLongPress:
+                                canDecrement ? widget.onDecrementLong : null,
+                          ),
                         ),
                         const Spacer(),
                         Text(

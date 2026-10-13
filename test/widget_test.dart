@@ -108,4 +108,71 @@ void main() {
       expect(decrements, 0);
     });
   });
+
+  group('Long press', () {
+    Widget button({
+      required VoidCallback onLongPress,
+      required VoidCallback onDecrementLong,
+      int count = 5,
+      bool isRunning = false,
+    }) {
+      return MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 200,
+            height: 260,
+            child: ExerciseButton(
+              exercise: isRunning ? ExerciseType.running : ExerciseType.squats,
+              count: count,
+              target: 100,
+              progress: count / 100,
+              stage: count ~/ 10,
+              isRunning: isRunning,
+              onTap: () {},
+              onLongPress: onLongPress,
+              onDecrement: () {},
+              onDecrementLong: onDecrementLong,
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('holding the panel adds a set and floats "+10"',
+        (tester) async {
+      var sets = 0;
+      await tester.pumpWidget(
+          button(onLongPress: () => sets++, onDecrementLong: () {}));
+      expect(find.text('TAP +1 \u00b7 HOLD +10'), findsOneWidget);
+
+      await tester.longPress(find.byType(InkWell).first);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(sets, 1);
+      expect(find.text('+10'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.text('+10'), findsNothing);
+    });
+
+    testWidgets('running shows the hold hint in km', (tester) async {
+      await tester.pumpWidget(button(
+          onLongPress: () {}, onDecrementLong: () {}, isRunning: true));
+      expect(find.text('TAP +100M \u00b7 HOLD +1KM'), findsOneWidget);
+    });
+
+    testWidgets('holding minus removes a set, tapping still removes one',
+        (tester) async {
+      var sets = 0;
+      await tester.pumpWidget(
+          button(onLongPress: () {}, onDecrementLong: () => sets++));
+      await tester.longPress(find.byIcon(Icons.remove));
+      await tester.pumpAndSettle();
+      expect(sets, 1);
+      // The hold is disabled at zero, like the tap.
+      await tester.pumpWidget(button(
+          onLongPress: () {}, onDecrementLong: () => sets++, count: 0));
+      await tester.longPress(find.byIcon(Icons.remove));
+      await tester.pumpAndSettle();
+      expect(sets, 1);
+    });
+  });
 }

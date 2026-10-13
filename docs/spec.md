@@ -16,7 +16,8 @@ A Flutter mobile app that tracks daily workout progress for the One Punch Man/So
 ### User Interface
 - **Main Screen**: A "QUEST INFO" system window (goals, penalty caution, streak) above four exercise panels in a grid
 - **Counter Display**: Bracketed monospace counts, e.g. `[42 / 100]`, `[3.2KM / 10KM]`
-- **Undo**: Each exercise panel has a minus button to undo a mis-tap. XP already earned is kept; reaching the target again does not re-award it or replay the celebration
+- **Sets**: Holding a panel adds ten reps (1 km for running) in one go, clamped at the target, with a floating "+10" and the stage popup for the stage reached. The hint under the count reads `TAP +1 · HOLD +10`
+- **Undo**: Each exercise panel has a minus button to undo a mis-tap; holding it removes ten. XP already earned is kept; reaching the target again does not re-award it or replay the celebration
 - **Progress Bars**: Visual progress indication for each exercise
 - **Running Toggle**: Checkbox to enable/disable running from daily completion. When unchecked, the running button is disabled (greyed out and non-interactive)
 - **Level Header**: Level, title and XP bar, with floating "+XP" feedback on each award; tap to open the character sheet

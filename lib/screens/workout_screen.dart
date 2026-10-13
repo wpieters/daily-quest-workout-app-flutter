@@ -47,7 +47,9 @@ class WorkoutScreen extends ConsumerWidget {
         isRunning: isRunning,
         isEnabled: isEnabled,
         onTap: () => notifier.incrementExercise(exercise),
+        onLongPress: () => notifier.incrementExercise(exercise, by: 10),
         onDecrement: () => notifier.decrementExercise(exercise),
+        onDecrementLong: () => notifier.decrementExercise(exercise, by: 10),
       );
     }
 
