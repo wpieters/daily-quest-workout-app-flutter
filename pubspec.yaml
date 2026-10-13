@@ -32,3 +32,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Pixel art from Tiny RPG Battle Kit I, CC BY 4.0 (assets/sprites/LICENSE.md)
+  assets:
+    - assets/sprites/20240926bundleFighter3f.png
+    - assets/sprites/20221110bundleFireFX-Sheet.png
+    - assets/sprites/20221110bundleThunderFX-Sheet.png
+    - assets/sprites/20221110bundleReviveFX-Sheet.png

@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
-import '../utils/theme.dart';
 
+import '../sprites/sprite_sheet.dart';
+import '../utils/theme.dart';
+import 'power_up_aura.dart';
+import 'sprite_animation.dart';
+
+/// Full-screen "DAILY QUEST COMPLETE" overlay: the pixel hero strikes a
+/// victory pose inside an aura that escalates with the streak tier
+/// (handoff 0003, ADR 0013). Calls [onComplete] after about 2.3 s.
 class CompletionAnimation extends StatefulWidget {
   final int powerLevel;
   final VoidCallback onComplete;
@@ -17,284 +24,149 @@ class CompletionAnimation extends StatefulWidget {
 
 class _CompletionAnimationState extends State<CompletionAnimation>
     with TickerProviderStateMixin {
-  late AnimationController _mainController;
-  late AnimationController _particleController;
-  late AnimationController _textController;
-  
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _rotationAnimation;
-  late Animation<double> _particleAnimation;
-  late Animation<double> _textFadeAnimation;
-  late Animation<double> _overlayFadeAnimation;
+  /// Hero scale-in and backdrop fade.
+  late final AnimationController _intro = AnimationController(
+    duration: const Duration(milliseconds: 800),
+    vsync: this,
+  );
+
+  /// Aura pulse, back and forth.
+  late final AnimationController _pulse = AnimationController(
+    duration: const Duration(milliseconds: 700),
+    vsync: this,
+  );
+
+  /// Wall clock for particles and arcs.
+  late final AnimationController _clock = AnimationController(
+    duration: const Duration(seconds: 30),
+    vsync: this,
+  );
+
+  /// Text fade in (0–0.7), then the whole overlay fades out (0.7–1).
+  late final AnimationController _text = AnimationController(
+    duration: const Duration(milliseconds: 1500),
+    vsync: this,
+  );
+
+  late final Animation<double> _heroScale = CurvedAnimation(
+    parent: _intro,
+    curve: const Interval(0, 0.7, curve: Curves.elasticOut),
+  );
+  late final Animation<double> _backdrop = CurvedAnimation(
+    parent: _intro,
+    curve: const Interval(0, 0.3, curve: Curves.easeOut),
+  );
+  late final Animation<double> _textFade = CurvedAnimation(
+    parent: _text,
+    curve: const Interval(0, 0.7, curve: Curves.easeOut),
+  );
+  late final Animation<double> _overlayFade = Tween(begin: 1.0, end: 0.0)
+      .animate(
+        CurvedAnimation(
+          parent: _text,
+          curve: const Interval(0.7, 1, curve: Curves.easeOut),
+        ),
+      );
+
+  bool _reduced = false;
+  bool _started = false;
 
   @override
-  void initState() {
-    super.initState();
-    
-    _mainController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-    
-    _particleController = AnimationController(
-      duration: const Duration(milliseconds: 3000),
-      vsync: this,
-    );
-    
-    _textController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _mainController,
-      curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
-    ));
-
-    _rotationAnimation = Tween<double>(
-      begin: 0.0,
-      end: 2.0,
-    ).animate(CurvedAnimation(
-      parent: _mainController,
-      curve: Curves.easeInOut,
-    ));
-
-    _particleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_particleController);
-
-    _textFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _textController,
-      curve: const Interval(0.0, 0.7, curve: Curves.easeOut),
-    ));
-
-    _overlayFadeAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _textController,
-      curve: const Interval(0.7, 1.0, curve: Curves.easeOut),
-    ));
-
-    _startAnimation();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _reduced = MediaQuery.of(context).disableAnimations;
+    if (!_started) {
+      _started = true;
+      _start();
+    }
   }
 
-  void _startAnimation() async {
-    _mainController.forward();
-    _particleController.repeat();
-    
+  Future<void> _start() async {
+    if (_reduced) {
+      _intro.value = 1;
+      _pulse.value = 0.5;
+    } else {
+      _intro.forward();
+      _pulse.repeat(reverse: true);
+      _clock.forward();
+    }
     await Future.delayed(const Duration(milliseconds: 800));
-    await _textController.forward();
-    
-    widget.onComplete();
+    if (!mounted) return;
+    await _text.forward();
+    if (mounted) widget.onComplete();
   }
 
   @override
   void dispose() {
-    _mainController.dispose();
-    _particleController.dispose();
-    _textController.dispose();
+    _intro.dispose();
+    _pulse.dispose();
+    _clock.dispose();
+    _text.dispose();
     super.dispose();
   }
 
-  String _getPowerLevelText() {
-    switch (widget.powerLevel) {
-      case 0: return 'NEWBIE POWER!';
-      case 1: return 'POWER UP!';
-      case 2: return 'SUPER SAIYAN!';
-      case 3: return 'SUPER SAIYAN 2!';
-      case 4: return 'ULTRA INSTINCT!';
-      default: return 'POWER UP!';
-    }
-  }
+  String get _powerLevelText => switch (widget.powerLevel) {
+    0 => 'NEWBIE POWER!',
+    1 => 'POWER UP!',
+    2 => 'SUPER SAIYAN!',
+    3 => 'SUPER SAIYAN 2!',
+    4 => 'ULTRA INSTINCT!',
+    _ => 'POWER UP!',
+  };
 
   @override
   Widget build(BuildContext context) {
-    final powerColor = AppTheme.getPowerLevelColor(widget.powerLevel);
-    
+    final tier = widget.powerLevel;
+    final color = AppTheme.getPowerLevelColor(tier);
+    final height = MediaQuery.sizeOf(context).height;
+    final heroScale = height < 700 ? 3.0 : 4.0;
+    // Effect cells are 192 px with the action in the middle; this keeps
+    // them in proportion to the 72 px hero.
+    final fxScale = heroScale * 0.75;
+    final animate = !_reduced;
+
     return Positioned.fill(
       child: AnimatedBuilder(
-        animation: Listenable.merge([
-          _scaleAnimation,
-          _rotationAnimation,
-          _particleAnimation,
-          _textFadeAnimation,
-          _overlayFadeAnimation,
-        ]),
+        animation: Listenable.merge([_intro, _pulse, _clock, _text]),
         builder: (context, child) {
           return Opacity(
-            opacity: _overlayFadeAnimation.value,
-            child: Container(
+            opacity: _overlayFade.value,
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: [
-                    powerColor.withValues(alpha: 0.1),
-                    Colors.black.withValues(alpha: 0.8),
+                    color.withValues(alpha: 0.15 * _backdrop.value),
+                    Colors.black.withValues(alpha: 0.85 * _backdrop.value),
                   ],
-                  stops: const [0.0, 1.0],
                 ),
               ),
               child: Stack(
                 children: [
-                  // Animated particles
-                  ...List.generate(20, (index) {
-                    final angle = (index * 18.0) * (3.14159 / 180);
-                    final radius = 150 + (50 * _particleAnimation.value);
-                    final x = MediaQuery.of(context).size.width / 2 + 
-                             (radius * _particleAnimation.value) * 
-                             (index.isEven ? 1 : -1) * 
-                             (0.5 + 0.5 * index / 20);
-                    final y = MediaQuery.of(context).size.height / 2 + 
-                             (radius * _particleAnimation.value) * 
-                             (index.isOdd ? 1 : -1) * 
-                             (0.5 + 0.5 * index / 20);
-                    
-                    return Positioned(
-                      left: x,
-                      top: y,
-                      child: Transform.rotate(
-                        angle: angle + (_rotationAnimation.value * 3.14159),
-                        child: Opacity(
-                          opacity: (1.0 - _particleAnimation.value).clamp(0.0, 1.0),
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: powerColor,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: powerColor.withValues(alpha: 0.5),
-                                  blurRadius: 4,
-                                  spreadRadius: 2,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                  
-                  // Main power-up animation
-                  Center(
-                    child: Transform.scale(
-                      scale: _scaleAnimation.value,
-                      child: Transform.rotate(
-                        angle: _rotationAnimation.value * 3.14159,
-                        child: Container(
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            gradient: RadialGradient(
-                              colors: [
-                                powerColor.withValues(alpha: 0.9),
-                                powerColor.withValues(alpha: 0.6),
-                                powerColor.withValues(alpha: 0.3),
-                                Colors.transparent,
-                              ],
-                              stops: const [0.0, 0.5, 0.8, 1.0],
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: powerColor.withValues(alpha: 0.5),
-                                    blurRadius: 20,
-                                    spreadRadius: 5,
-                                  ),
-                                ],
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  '⚡',
-                                  style: TextStyle(fontSize: 60),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: PowerUpAura(
+                        color: color,
+                        tier: tier,
+                        pulse: _pulse.value,
+                        seconds: _clock.value * 30,
+                        centre: const Alignment(0, -0.15),
                       ),
                     ),
                   ),
-                  
-                  // Power level text
                   Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 250),
-                      child: Opacity(
-                        opacity: _textFadeAnimation.value,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'DAILY QUEST',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 3,
-                                shadows: [
-                                  Shadow(
-                                    color: powerColor,
-                                    blurRadius: 10,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 8),
-                            
-                            Text(
-                              'COMPLETE!',
-                              style: TextStyle(
-                                color: powerColor,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 2,
-                                shadows: const [
-                                  Shadow(
-                                    color: Colors.white,
-                                    blurRadius: 5,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            Text(
-                              _getPowerLevelText(),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1,
-                                shadows: [
-                                  Shadow(
-                                    color: powerColor,
-                                    blurRadius: 8,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Transform.scale(scale: _heroScale.value, child: child),
+                        const SizedBox(height: 24),
+                        Opacity(
+                          opacity: _reduced ? 1 : _textFade.value,
+                          child: _CompletionText(
+                            color: color,
+                            powerLevelText: _powerLevelText,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ],
@@ -302,7 +174,126 @@ class _CompletionAnimationState extends State<CompletionAnimation>
             ),
           );
         },
+        // The sprites are built once, outside the builder, so their tickers
+        // aren't restarted on every frame.
+        // The box is hero-sized; effect sheets overflow it on all sides so
+        // they don't push the text down.
+        child: SizedBox.fromSize(
+          size: Sprites.fighter.cellSize * heroScale,
+          child: Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              if (tier == 2)
+                _Overflowing(
+                  child: SpriteAnimation(
+                    key: const ValueKey('fire'),
+                    sheet: Sprites.fire,
+                    frames: Sprites.fireLoop,
+                    fps: 10,
+                    scale: fxScale,
+                    animate: animate,
+                  ),
+                ),
+              if (tier >= 4)
+                _Overflowing(
+                  child: SpriteAnimation(
+                    key: const ValueKey('revive'),
+                    sheet: Sprites.revive,
+                    frames: Sprites.reviveSparkle,
+                    fps: 10,
+                    scale: fxScale * 1.3,
+                    colorFilter: hueRotate(240),
+                    animate: animate,
+                  ),
+                ),
+              SpriteAnimation(
+                key: const ValueKey('fighter'),
+                sheet: Sprites.fighter,
+                frames: Sprites.fighter.frames(SvMotion.victory),
+                fps: 5,
+                scale: heroScale,
+                animate: animate,
+                stillFrame: 2,
+              ),
+              if (tier >= 3 && animate)
+                _Overflowing(
+                  child: SpriteAnimation(
+                    key: const ValueKey('thunder'),
+                    sheet: Sprites.thunder,
+                    frames: Sprites.thunderStrike,
+                    fps: 12,
+                    loop: false,
+                    scale: fxScale,
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+}
+
+/// Lets an effect sheet be larger than the hero's box, centred on it.
+class _Overflowing extends StatelessWidget {
+  final Widget child;
+  const _Overflowing({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return OverflowBox(
+      maxWidth: double.infinity,
+      maxHeight: double.infinity,
+      child: child,
+    );
+  }
+}
+
+class _CompletionText extends StatelessWidget {
+  final Color color;
+  final String powerLevelText;
+
+  const _CompletionText({required this.color, required this.powerLevelText});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'DAILY QUEST',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 3,
+            shadows: [Shadow(color: color, blurRadius: 10)],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'COMPLETE!',
+          style: TextStyle(
+            color: color,
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2,
+            shadows: const [Shadow(color: Colors.white, blurRadius: 5)],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          powerLevelText,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1,
+            shadows: [Shadow(color: color, blurRadius: 8)],
+          ),
+        ),
+      ],
     );
   }
 }

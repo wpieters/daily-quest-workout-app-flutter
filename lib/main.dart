@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/workout_screen.dart';
 import 'utils/theme.dart';
 import 'services/daily_reset_service.dart';
+import 'widgets/sprite_animation.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Decode the power-up sprites now so the first overlay isn't blank.
+  SpriteImages.warmUp();
   runApp(const ProviderScope(child: DailyQuestApp()));
 }
 
