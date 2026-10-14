@@ -85,8 +85,44 @@ void main() {
     finish(container);
   });
 
+  testWidgets('slots are disabled while the master switch is off', (
+    tester,
+  ) async {
+    final container = await pumpSettings(tester);
+
+    for (final tile in tester.widgetList<CheckboxListTile>(
+      find.byType(CheckboxListTile),
+    )) {
+      expect(tile.enabled, isFalse);
+      expect(tile.onChanged, isNull);
+    }
+    final timeButton = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, '14:00'),
+    );
+    expect(timeButton.onPressed, isNull);
+
+    // Tapping a slot does nothing.
+    await tester.tap(find.widgetWithText(CheckboxListTile, 'Afternoon'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('14:00'), findsOneWidget);
+    expect(fake.calls, isNot(contains('sync')));
+
+    // Switching on wakes them up.
+    await tester.tap(reminderSwitch);
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(
+      tester
+          .widget<TextButton>(find.widgetWithText(TextButton, '14:00'))
+          .onPressed,
+      isNotNull,
+    );
+    finish(container);
+  });
+
   testWidgets('unticking a slot switches it off', (tester) async {
     final container = await pumpSettings(tester);
+    await tester.tap(reminderSwitch);
+    await tester.pump(const Duration(milliseconds: 100));
 
     await tester.tap(find.widgetWithText(CheckboxListTile, 'Afternoon'));
     await tester.pump(const Duration(milliseconds: 100));
