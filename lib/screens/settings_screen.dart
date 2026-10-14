@@ -304,26 +304,30 @@ class _ReminderSettings extends ConsumerWidget {
           onChanged: state.busy ? null : notifier.setEnabled,
           activeThumbColor: AppTheme.primaryBlue,
         ),
+        // The slots only mean something while the master switch is on.
         for (final slot in ReminderSlot.values)
           CheckboxListTile(
             controlAffinity: ListTileControlAffinity.leading,
+            enabled: settings.enabled,
             title: Text(slot.label),
             subtitle: Text(slot.description),
             value: settings[slot] != null,
-            onChanged: (on) => notifier.setSlot(
-              slot,
-              on == true ? ReminderSettings.defaults[slot] : null,
-            ),
+            onChanged: settings.enabled
+                ? (on) => notifier.setSlot(
+                    slot,
+                    on == true ? ReminderSettings.defaults[slot] : null,
+                  )
+                : null,
             secondary: TextButton(
-              onPressed: settings[slot] == null
-                  ? null
-                  : () => _pickTime(context, notifier, slot, settings[slot]!),
+              onPressed: settings.enabled && settings[slot] != null
+                  ? () => _pickTime(context, notifier, slot, settings[slot]!)
+                  : null,
               child: Text(
                 settings[slot]?.hhmm ?? 'off',
                 style: AppTheme.mono.copyWith(
-                  color: settings[slot] == null
-                      ? AppTheme.mutedForeground
-                      : AppTheme.questPrimary,
+                  color: settings.enabled && settings[slot] != null
+                      ? AppTheme.questPrimary
+                      : AppTheme.mutedForeground,
                 ),
               ),
             ),
