@@ -428,6 +428,54 @@ void main() {
       expect(c.read(workoutProvider).pendingPenalty, isNull);
     });
 
+    test('a day without a completed quest resets the streak', () async {
+      SharedPreferences.setMockInitialValues({});
+      final (c, n) = await open();
+      await n.toggleRunning();
+      await tap(n, ExerciseType.pushups, 100);
+      await tap(n, ExerciseType.situps, 100);
+      await tap(n, ExerciseType.squats, 100);
+      expect(c.read(workoutProvider).progress.currentStreak, 1);
+
+      // Opening the next morning keeps the streak: today isn't over.
+      now = DateTime(2026, 10, 10, 8);
+      await n.rollover();
+      expect(c.read(workoutProvider).progress.currentStreak, 1);
+
+      // Only push-ups on the 10th: no XP penalty, but the streak is broken.
+      await tap(n, ExerciseType.pushups, 100);
+      now = DateTime(2026, 10, 11, 8);
+      await n.rollover();
+      var p = c.read(workoutProvider).progress;
+      expect(p.currentStreak, 0);
+      expect(p.longestStreak, 1);
+      expect(p.progression.consecutiveMissedDays, 0);
+
+      // A new completion starts again from 1.
+      await tap(n, ExerciseType.pushups, 100);
+      await tap(n, ExerciseType.situps, 100);
+      await tap(n, ExerciseType.squats, 100);
+      p = c.read(workoutProvider).progress;
+      expect(p.currentStreak, 1);
+      expect(p.longestStreak, 1);
+    });
+
+    test('a gap of several days resets the streak on the next open', () async {
+      SharedPreferences.setMockInitialValues({});
+      var (c, n) = await open();
+      await n.toggleRunning();
+      await tap(n, ExerciseType.pushups, 100);
+      await tap(n, ExerciseType.situps, 100);
+      await tap(n, ExerciseType.squats, 100);
+
+      now = DateTime(2026, 10, 13, 8);
+      (c, n) = await open();
+      final p = c.read(workoutProvider).progress;
+      expect(p.currentStreak, 0);
+      expect(p.longestStreak, 1);
+      expect(c.read(workoutProvider).pendingPenalty!.days, 3);
+    });
+
     test('a tap after midnight settles the old day first', () async {
       SharedPreferences.setMockInitialValues({});
       final (c, n) = await open();
