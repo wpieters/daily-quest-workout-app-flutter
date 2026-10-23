@@ -17,3 +17,4 @@ These follow the format and conventions in [ADR 0001](0001-record-decisions-and-
 | [0011](0011-deploy-main-only.md) | Deploy only `main` through Amplify | Accepted |
 | [0012](0012-web-push-reminders.md) | Reminders via Web Push, with a small AWS backend | Accepted |
 | [0013](0013-pixel-sprites-cc-by.md) | Pixel-art hero and effects from Tiny RPG Battle Kit I (CC BY 4.0) | Proposed |
+| [0014](0014-local-json-backup.md) | Backup as a local JSON file, no accounts | Accepted |
