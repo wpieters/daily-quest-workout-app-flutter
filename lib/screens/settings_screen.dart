@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/backup.dart';
 import '../models/reminder_settings.dart';
+import '../models/user_progress.dart';
 import '../providers/reminder_provider.dart';
 import '../providers/workout_provider.dart';
+import '../services/backup_service.dart';
 import '../services/daily_reset_service.dart';
 import '../services/reminder_service.dart';
+import '../services/storage_service.dart';
 import '../utils/theme.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -70,6 +74,12 @@ class SettingsScreen extends ConsumerWidget {
           // Reminders (hidden when no backend is configured, ADR 0012)
           if (!ref.watch(reminderProvider).hidden) ...[
             _buildSection(context, 'Reminders', [const _ReminderSettings()]),
+            const SizedBox(height: 24),
+          ],
+
+          // Backup and restore (hidden where files can't move, ADR 0014)
+          if (ref.watch(backupServiceProvider).available) ...[
+            _buildSection(context, 'Backup', [const _BackupSettings()]),
             const SizedBox(height: 24),
           ],
 
@@ -350,5 +360,149 @@ class _ReminderSettings extends ConsumerWidget {
     if (picked != null) {
       await notifier.setSlot(slot, ReminderTime(picked.hour, picked.minute));
     }
+  }
+}
+
+/// Export to a JSON file, or import one (handoff 0005). Import is as
+/// destructive as Reset All Data and asks the same way.
+class _BackupSettings extends ConsumerStatefulWidget {
+  const _BackupSettings();
+
+  @override
+  ConsumerState<_BackupSettings> createState() => _BackupSettingsState();
+}
+
+class _BackupSettingsState extends ConsumerState<_BackupSettings> {
+  DateTime? _lastExport;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(storageServiceProvider).loadLastExport().then((at) {
+      if (mounted) setState(() => _lastExport = at);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final last = _lastExport;
+    return Column(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.download, color: AppTheme.questPrimary),
+          title: const Text('Export backup'),
+          subtitle: Text(
+            last == null
+                ? 'Never exported. Save a copy of your progress.'
+                : 'Last export: ${_formatDate(last)}',
+          ),
+          enabled: !_busy,
+          onTap: _export,
+        ),
+        ListTile(
+          leading: const Icon(Icons.upload, color: AppTheme.questWarning),
+          title: const Text('Import backup'),
+          subtitle: const Text('Replace everything on this device with a file'),
+          enabled: !_busy,
+          onTap: _import,
+        ),
+      ],
+    );
+  }
+
+  String _formatDate(DateTime at) {
+    final d = at.toLocal();
+    return '${d.day}/${d.month}/${d.year}';
+  }
+
+  void _notify(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _export() async {
+    setState(() => _busy = true);
+    try {
+      final storage = ref.read(storageServiceProvider);
+      final now = ref.read(clockProvider)();
+      final backup = Backup(exportedAt: now, data: await storage.exportAll());
+      await ref
+          .read(backupServiceProvider)
+          .download(Backup.filenameFor(now), backup.encode());
+      await storage.saveLastExport(now);
+      if (mounted) setState(() => _lastExport = now);
+      _notify('Backup exported');
+    } catch (e) {
+      _notify('Export failed: $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _import() async {
+    setState(() => _busy = true);
+    try {
+      final text = await ref.read(backupServiceProvider).pickFile();
+      if (text == null) return; // cancelled
+      final Backup backup;
+      try {
+        backup = Backup.decode(text);
+      } on BackupException catch (e) {
+        _notify('Cannot import: ${e.message}');
+        return;
+      }
+      if (!mounted) return;
+      final confirmed = await _confirmImport(backup);
+      if (confirmed != true) return;
+
+      final storage = ref.read(storageServiceProvider);
+      final reminders = ref.read(reminderProvider.notifier);
+      await storage.importAll(backup.data);
+      await ref.read(workoutProvider.notifier).reload();
+      // Picks up the imported settings; re-syncs the push subscription when
+      // this device has one, or turns the switch off when it doesn't.
+      await reminders.reload();
+      _notify('Backup imported');
+    } catch (e) {
+      _notify('Import failed: $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<bool?> _confirmImport(Backup backup) {
+    final progress = UserProgress.fromJson(backup.data['user_progress']!);
+    final level = ref
+        .read(progressionEngineProvider)
+        .levelOf(progress.progression);
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Import backup'),
+        content: Text(
+          'Level $level, ${progress.currentStreak}-day streak, '
+          '${progress.totalWorkouts} workouts, '
+          'exported ${_formatDate(backup.exportedAt)}.\n\n'
+          'Replace everything on this device with this backup? '
+          'This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.questWarning,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Replace'),
+          ),
+        ],
+      ),
+    );
   }
 }

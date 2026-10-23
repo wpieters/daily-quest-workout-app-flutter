@@ -15,6 +15,7 @@ class StorageService {
   static const String _progressKey = 'user_progress';
   static const String _todayWorkoutKey = 'today_workout';
   static const String _reminderSettingsKey = 'reminder_settings';
+  static const String _lastExportKey = 'last_export_at';
 
   Future<UserProgress> loadProgress() async {
     try {
@@ -103,6 +104,55 @@ class StorageService {
       await prefs.remove(_progressKey);
       await prefs.remove(_todayWorkoutKey);
       await prefs.remove(_reminderSettingsKey);
+      await prefs.remove(_lastExportKey);
+    } catch (e) {
+      // Handle error silently
+    }
+  }
+
+  /// Every stored key as its raw JSON, for a backup file. Missing keys are
+  /// null. Not wrapped in try/catch: a backup must not silently be empty.
+  Future<Map<String, Map<String, dynamic>?>> exportAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic>? read(String key) {
+      final json = prefs.getString(key);
+      return json == null ? null : jsonDecode(json) as Map<String, dynamic>;
+    }
+
+    return {
+      _progressKey: read(_progressKey),
+      _todayWorkoutKey: read(_todayWorkoutKey),
+      _reminderSettingsKey: read(_reminderSettingsKey),
+    };
+  }
+
+  /// Replaces every stored key with [data] (null removes the key).
+  Future<void> importAll(Map<String, Map<String, dynamic>?> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    for (final key in [_progressKey, _todayWorkoutKey, _reminderSettingsKey]) {
+      final value = data[key];
+      if (value == null) {
+        await prefs.remove(key);
+      } else {
+        await prefs.setString(key, jsonEncode(value));
+      }
+    }
+  }
+
+  Future<DateTime?> loadLastExport() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final s = prefs.getString(_lastExportKey);
+      return s == null ? null : DateTime.tryParse(s);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> saveLastExport(DateTime at) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_lastExportKey, at.toUtc().toIso8601String());
     } catch (e) {
       // Handle error silently
     }

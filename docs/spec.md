@@ -23,6 +23,7 @@ A Flutter mobile app that tracks daily workout progress for the One Punch Man/So
 - **Level Header**: Level, title and XP bar, with floating "+XP" feedback on each award; tap to open the character sheet
 - **Stage Completion**: Visual indicator showing completed "stages" (every 10 reps/taps)
 - **Streak**: consecutive days on which the daily quest was completed. It resets to 0 at the rollover after any day that wasn't completed, including a partial day that avoided the XP penalty (ADR 0004 protects XP, not the streak)
+- **Backup**: Settings has Export (downloads `dailyquest-backup-YYYY-MM-DD.json`, a readable JSON file with every stored key and a checksum) and Import (file picker, validation, a confirmation naming the level, streak, workouts and export date in the file, then replaces everything and reloads). The section shows when the last export was made. Hidden where files can't be offered (ADR 0014)
 - **Missed-day notice**: After a rollover that charged missed days, a red "QUEST FAILED" system window shows the days missed, the XP lost and either the protection left or the level lost. Shown once, above everything else, before any queued level-up; tap to dismiss
 
 ### Progression System

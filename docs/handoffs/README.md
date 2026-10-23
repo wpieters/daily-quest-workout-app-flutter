@@ -22,4 +22,4 @@ When the work ships, add an **Outcome** section at the end. It should cover what
 | [0002](0002-reminders.md) | Daily Quest reminders (Web Push + AWS) | done |
 | [0003](0003-power-up-sprites.md) | Streak power-up with pixel sprites | done |
 | [0004](0004-missed-day-notice.md) | Missed-day penalty notice (QUEST FAILED window) | done |
-| [0005](0005-export-import.md) | Backup and restore (JSON export/import) | open |
+| [0005](0005-export-import.md) | Backup and restore (JSON export/import) | in-progress |
