@@ -386,6 +386,10 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     return [...history]..[index] = day;
   }
 
+  /// Re-reads everything from storage, e.g. after a backup was imported.
+  /// Settles any days that ended since the backup was made.
+  Future<void> reload() => _loadData();
+
   void dismissPenalty() {
     state = state.copyWith(clearPenalty: true);
   }

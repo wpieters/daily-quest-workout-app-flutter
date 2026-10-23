@@ -1,5 +1,5 @@
 ---
-status: open
+status: in-progress
 date: 2026-10-23
 branch: feat/export-import → main
 pr:
@@ -55,3 +55,16 @@ In Settings, a **Backup** section with:
 ## Open questions
 - Should Export also be offered from the QUEST FAILED window or after a long streak ("back this up")? Default: no, keep it in Settings; revisit if the last-export date keeps getting old.
 - The `last_export_at` nudge: show the line in muted text, or turn it orange after 30 days? Default: muted only.
+
+## Outcome
+Implemented on `feat/export-import`.
+
+- `lib/models/backup.dart`: `Backup` (encode/decode, canonical JSON, SHA-256 checksum, filename), `BackupException` with the reason shown to the user. `crypto` added to `pubspec.yaml`.
+- `lib/services/backup_service.dart` (+ `_stub`, `_web`) over `web/backup.js`: `download`, `pickFile` (null on cancel), and a `persist()` call at page load.
+- `StorageService.exportAll/importAll`, `loadLastExport/saveLastExport` (key `last_export_at`, cleared by Reset All Data). `WorkoutNotifier.reload()` re-reads storage and settles any days that ended since the backup.
+- Settings: Backup section with Export (shows the last export date), Import (validate, confirm with level/streak/workouts/export date, replace, reload workout and reminder state). Hidden when the service is unavailable.
+- Tests: 17 new (model round-trip and every refusal, storage export/import, settings UI with a fake service: export, import with confirm and cancel, bad file, picker cancelled). 157 total.
+
+**Found along the way**: a backup whose history doesn't include yesterday comes back with streak 0 after import, because reload runs the rollover and the streak rule from PR #7 applies. That's correct for real files, which carry history; the UI test's fixture needed a completed yesterday.
+
+**Open questions**: both defaults kept (Settings only; muted last-export line).

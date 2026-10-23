@@ -24,6 +24,7 @@ dependencies:
 
   # Icons used by Flutter's Cupertino/adaptive widgets
   cupertino_icons: ^2.0.0
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:
