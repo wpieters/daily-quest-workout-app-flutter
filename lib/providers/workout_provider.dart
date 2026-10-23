@@ -156,6 +156,11 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     final progress = state.progress.copyWith(
       progression: result.state,
       history: history,
+      // Any ended day without a completed quest breaks the streak, including
+      // a partial day that was spared the XP penalty.
+      currentStreak: _streakUnbroken(history, today)
+          ? state.progress.currentStreak
+          : 0,
     );
     final currentDay = dayEnded
         ? WorkoutDay(date: today, runningEnabled: day.runningEnabled)
@@ -322,16 +327,12 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
     );
     final newHistory = _upsertDay(state.progress.history, completedDay);
 
-    // Calculate new streak
-    int newStreak = 1;
-    for (int i = newHistory.length - 2; i >= 0; i--) {
-      if (newHistory[i].completed &&
-          newHistory[i].date.difference(newHistory[i + 1].date).inDays == -1) {
-        newStreak++;
-      } else {
-        break;
-      }
-    }
+    // The stored streak is current: rollover zeroes it after any gap.
+    final newStreak = alreadyCounted
+        ? state.progress.currentStreak
+        : _completedOn(newHistory, _dayBefore(completedDay.date))
+        ? state.progress.currentStreak + 1
+        : 1;
 
     final newProgress = state.progress.copyWith(
       currentStreak: newStreak,
@@ -363,6 +364,19 @@ class WorkoutNotifier extends Notifier<WorkoutState> {
       );
     }
   }
+
+  /// True while the streak is still alive on [today]: yesterday (or today
+  /// itself) has a completed quest in [history]. Stored streak counts are
+  /// trusted (v1 data may hold a streak longer than its history).
+  bool _streakUnbroken(List<WorkoutDay> history, DateTime today) =>
+      _completedOn(history, today) || _completedOn(history, _dayBefore(today));
+
+  bool _completedOn(List<WorkoutDay> history, DateTime date) {
+    final day = dateOnly(date);
+    return history.any((d) => d.completed && dateOnly(d.date) == day);
+  }
+
+  DateTime _dayBefore(DateTime d) => DateTime(d.year, d.month, d.day - 1);
 
   /// Replaces the history entry for [day]'s date, or appends it.
   List<WorkoutDay> _upsertDay(List<WorkoutDay> history, WorkoutDay day) {

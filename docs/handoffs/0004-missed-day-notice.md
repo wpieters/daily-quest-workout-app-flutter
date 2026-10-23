@@ -1,8 +1,8 @@
 ---
-status: in-progress
+status: done
 date: 2026-10-13
 branch: feat/missed-day-notice → main
-pr:
+pr: https://github.com/wpieters/daily-quest-workout-app-flutter/pull/5
 adrs: [0004, 0008]
 ---
 
@@ -34,3 +34,8 @@ Same shape as the level-up window ([ADR 0008](../adr/0008-level-up-ceremony.md))
 
 ## Open questions
 - Should the notice also show when protection held XP at the floor and nothing was lost? Default: yes, the miss still counts toward losing protection, and the window says so.
+
+## Outcome
+Shipped in PR #5, merged 2026-10-14. Wynand confirmed the window on a real missed day. The open question stands as the default: a fully protected miss at the floor still notifies, with -0 XP.
+
+**Found along the way**: leaving one of four exercises incomplete is not a miss under ADR 0004 (one exercise at target protects the day), so the first live test showed nothing. That's the rule working, not a bug. The streak, however, didn't reset on such a day; fixed separately on `fix/streak-reset-on-miss`.
