@@ -196,8 +196,7 @@ Sprites are drawn with nearest-neighbour scaling (4× on phones, 3× under 700 p
 ### Phase 3: Polish & Features
 - Advanced animation sequences
 - Achievement system
-- Data export/import
-- Widget for home screen
+- Data export/import: see [handoff 0005](handoffs/0005-export-import.md) and [ADR 0014](adr/0014-local-json-backup.md)
 
 ## Technical Considerations
 
@@ -208,7 +207,7 @@ Sprites are drawn with nearest-neighbour scaling (4× on phones, 3× under 700 p
 
 ### Data Persistence
 - Daily progress auto-save on each increment
-- Backup/restore functionality for user data
+- Backup/restore: local JSON export/import from Settings (ADR 0014); persistent storage requested from the browser
 - Migration strategy for app updates
 
 ### Platform Support
