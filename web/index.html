@@ -22,7 +22,13 @@
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <!--
+    iOS 26+ draws a blurred strip over the top of standalone PWAs. "default"
+    starts the web view below the status bar; together with the opaque fixed
+    #ios-status-strip div in <body> this stops the blur (ADR 0015). Neither
+    change works on its own.
+  -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="DailyQuest">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
@@ -32,8 +38,22 @@
   <meta name="theme-color" content="#0F131A">
   <title>DailyQuest</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    /* Must be a real element, not ::before, and must have no backdrop-filter. */
+    #ios-status-strip {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: #0F131A;
+      z-index: 2147483647;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
+  <div id="ios-status-strip"></div>
   <!-- Web Push reminders (ADR 0012); Flutter calls window.dqPush -->
   <script src="push.js"></script>
   <script src="backup.js"></script>
