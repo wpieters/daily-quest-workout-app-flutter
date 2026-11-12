@@ -20,13 +20,15 @@ const WINDOW_MINUTES = Number(process.env.WINDOW_MINUTES ?? 60);
 const APP_URL = process.env.APP_URL ?? 'https://dailyquest.duhblinn.xyz';
 const PENALTY_XP = process.env.PENALTY_XP ?? '150';
 
+// No app-name prefix: the OS already shows the sender (iOS reads it as
+// "<title> from <home-screen name>"), so the prefix only doubled it up.
 export const MESSAGES = {
   morning: {
-    title: '[Daily Quest] A new quest has arrived',
+    title: 'A new quest has arrived',
     body: '100 push-ups, 100 sit-ups, 100 squats, 10 km. Complete it before midnight.',
   },
   afternoon: {
-    title: '[Daily Quest] Quest incomplete',
+    title: 'Quest incomplete',
     body: "You haven't finished today's Daily Quest yet. Time remaining: until midnight.",
   },
   evening: {
