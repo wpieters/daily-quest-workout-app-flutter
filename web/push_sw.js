@@ -14,7 +14,7 @@ self.addEventListener('push', (event) => {
   } catch (_) {
     payload = { body: event.data && event.data.text() };
   }
-  const title = payload.title || '[Daily Quest]';
+  const title = payload.title || 'A message from THE SYSTEM';
   const options = {
     body: payload.body || '',
     icon: '/icons/Icon-192.png',
